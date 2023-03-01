@@ -1,41 +1,70 @@
-export default function contractTypeComponent() {
+import { useState } from 'react'
+import { RadioGroup } from '@headlessui/react'
+import { CheckCircleIcon } from '@heroicons/react/20/solid'
+
+const mailingLists = [
+  { id: 1, title: 'Casa Habitación', description: 'Last message sent an hour ago', users: '621 users' },
+  { id: 2, title: 'Comercio', description: 'Last message sent 2 weeks ago', users: '1200 users' }
+]
+
+function classNames(...classes: string[]) {
+  return classes.filter(Boolean).join(' ')
+}
+
+export default function ContractTypeComponent() {
+
+  const [selectedMailingLists, setSelectedMailingLists] = useState(mailingLists[0])
 
   return (
-    <div>
-      <legend className="contents text-base font-medium text-gray-900">Tipo de contrato</legend>
-      <ul className="grid gap-6 w-full md:grid-cols-2 mt-2">
-        <li>
-          <input type="radio" id="hosting-small" name="hosting" value="hosting-small" className="hidden peer" required />
-          <label htmlFor="hosting-small"
-                 className="inline-flex justify-between items-center p-5 w-full text-gray-500 bg-white rounded-lg border border-gray-200 cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700">
-            <div className="block">
-              <div className="w-full text-lg font-semibold">Casa Habitación</div>
-            </div>
-            <svg aria-hidden="true" className="ml-3 w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
-                 xmlns="http://www.w3.org/2000/svg">
-              <path fillRule="evenodd"
-                    d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                    clipRule="evenodd"></path>
-            </svg>
-          </label>
-        </li>
-        <li>
-          <input type="radio" id="hosting-big" name="hosting" value="hosting-big" className="hidden peer" />
-          <label htmlFor="hosting-big"
-                 className="inline-flex justify-between items-center p-5 w-full text-gray-500 bg-white rounded-lg border border-gray-200 cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700">
-            <div className="block">
-              <div className="w-full text-lg font-semibold">Comercio</div>
-            </div>
-            <svg aria-hidden="true" className="ml-3 w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
-                 xmlns="http://www.w3.org/2000/svg">
-              <path fillRule="evenodd"
-                    d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                    clipRule="evenodd"></path>
-            </svg>
-          </label>
-        </li>
-      </ul>
-    </div>
+    <RadioGroup value={selectedMailingLists} onChange={setSelectedMailingLists}>
+      <RadioGroup.Label className="text-base font-medium text-gray-900">Tipo de contrato</RadioGroup.Label>
+
+      <div className="mt-4 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4 content-center">
+        {mailingLists.map((mailingList) => (
+          <RadioGroup.Option
+            key={mailingList.id}
+            value={mailingList}
+            className={({ checked, active }) =>
+              classNames(
+                checked ? 'border-transparent' : 'border-gray-300',
+                active ? 'border-indigo-500 ring-2 ring-indigo-500' : '',
+                'relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none'
+              )
+            }
+          >
+            {({ checked, active }) => (
+              <>
+                <span className="flex flex-1">
+                  <span className="flex flex-col">
+                    <RadioGroup.Label as="span" className="block text-sm font-medium text-gray-900">
+                      {mailingList.title}
+                    </RadioGroup.Label>
+                    <RadioGroup.Description as="span" className="mt-1 flex items-center text-sm text-gray-500">
+                      {mailingList.description}
+                    </RadioGroup.Description>
+                    <RadioGroup.Description as="span" className="mt-6 text-sm font-medium text-gray-900">
+                      {mailingList.users}
+                    </RadioGroup.Description>
+                  </span>
+                </span>
+                <CheckCircleIcon
+                  className={classNames(!checked ? 'invisible' : '', 'h-5 w-5 text-indigo-600')}
+                  aria-hidden="true"
+                />
+                <span
+                  className={classNames(
+                    active ? 'border' : 'border-2',
+                    checked ? 'border-indigo-500' : 'border-transparent',
+                    'pointer-events-none absolute -inset-px rounded-lg'
+                  )}
+                  aria-hidden="true"
+                />
+              </>
+            )}
+          </RadioGroup.Option>
+        ))}
+      </div>
+    </RadioGroup>
   )
 }
 

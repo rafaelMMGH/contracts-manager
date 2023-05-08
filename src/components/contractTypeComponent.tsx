@@ -1,10 +1,12 @@
-import { useState } from 'react'
-import { RadioGroup } from '@headlessui/react'
-import { CheckCircleIcon } from '@heroicons/react/20/solid'
+import React, {useState} from 'react'
+import {RadioGroup} from '@headlessui/react'
+import {CheckCircleIcon} from '@heroicons/react/20/solid'
+import House_image from '../images/house.jpg';
+import Commerce_image from '../images/commerce.jpg';
 
 const mailingLists = [
-  { id: 1, title: 'Casa Habitación', description: 'Last message sent an hour ago', users: '621 users' },
-  { id: 2, title: 'Comercio', description: 'Last message sent 2 weeks ago', users: '1200 users' }
+  {id: 1, title: 'Casa Habitación', imageSrc: House_image, imageAlt: 'Casa Habiación'},
+  {id: 2, title: 'Comercio', imageSrc: Commerce_image, imageAlt: 'Comercio'}
 ]
 
 function classNames(...classes: string[]) {
@@ -24,7 +26,7 @@ export default function ContractTypeComponent() {
           <RadioGroup.Option
             key={mailingList.id}
             value={mailingList}
-            className={({ checked, active }) =>
+            className={({checked, active}) =>
               classNames(
                 checked ? 'border-transparent' : 'border-gray-300',
                 active ? 'border-indigo-500 ring-2 ring-indigo-500' : '',
@@ -32,33 +34,21 @@ export default function ContractTypeComponent() {
               )
             }
           >
-            {({ checked, active }) => (
+            {({checked, active}) => (
               <>
-                <span className="flex flex-1">
-                  <span className="flex flex-col">
-                    <RadioGroup.Label as="span" className="block text-sm font-medium text-gray-900">
-                      {mailingList.title}
-                    </RadioGroup.Label>
-                    <RadioGroup.Description as="span" className="mt-1 flex items-center text-sm text-gray-500">
-                      {mailingList.description}
-                    </RadioGroup.Description>
-                    <RadioGroup.Description as="span" className="mt-6 text-sm font-medium text-gray-900">
-                      {mailingList.users}
-                    </RadioGroup.Description>
-                  </span>
-                </span>
-                <CheckCircleIcon
-                  className={classNames(!checked ? 'invisible' : '', 'h-5 w-5 text-indigo-600')}
-                  aria-hidden="true"
-                />
-                <span
-                  className={classNames(
-                    active ? 'border' : 'border-2',
-                    checked ? 'border-indigo-500' : 'border-transparent',
-                    'pointer-events-none absolute -inset-px rounded-lg'
-                  )}
-                  aria-hidden="true"
-                />
+
+                <a href="#" className="flex flex-col items-center group gap-2">
+                  <RadioGroup.Description as="div" className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-w-7 xl:aspect-h-8">
+                    <img
+                      className="rounded border-2 border-transparent group-hover:border-2 group-hover:border-gray-300"
+                      width={250}
+                      src={mailingList.imageSrc}
+                      alt={mailingList.imageAlt}/>
+                  </RadioGroup.Description>
+                  <RadioGroup.Label as="span" className="block text-sm font-medium text-gray-900 mb-1">
+                    {mailingList.title}
+                  </RadioGroup.Label>
+                </a>
               </>
             )}
           </RadioGroup.Option>

@@ -24,9 +24,9 @@ export default function AddressComponent() {
       )
 
   return (
-    <div className="top-16 xl:w-72 w-full">
+    <div className="top-16 w-full">
       <div className="flex justify-start">
-        <div className="mb-3 xl:w-96 w-full">
+        <div className="mb-3 w-full">
           <Combobox value={selectedAddress} onChange={setSelectedAddress}>
             <Combobox.Label className="text-base font-medium text-gray-900">Dirección</Combobox.Label>
             <div className="relative mt-1">
@@ -50,7 +50,7 @@ export default function AddressComponent() {
                 leaveTo="opacity-0"
                 afterLeave={() => setQuery('')}
               >
-                <Combobox.Options className="fixed mt-1 max-h-60 xl:w-72 w-5/6 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                <Combobox.Options className="fixed mt-1 max-h-60 xl:w-[61%] lg:w-[58%] md:w-[57%] sm:w-[84%] w-[84%] overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                   {filteredAddress.length === 0 && query !== '' ? (
                     <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
                       Nothing found.

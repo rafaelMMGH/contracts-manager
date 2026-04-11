@@ -1,46 +1,89 @@
-# Getting Started with Create React App
+# Contracts Manager
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A full-stack rental property and contract management system for the Mexican market. Built for property managers who handle properties on behalf of owners — track houses, tenants, and generate PDF rental contracts in Spanish.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Authentication** — Secure login with email/password via NextAuth.js
+- **Dashboard** — KPI cards (total houses, active contracts, available units, expiring soon), expiring contracts alert table (60-day window), and total monthly income
+- **Owners** — CRUD management of property owners
+- **Houses** — CRUD with owner assignment, property type (residential/commercial), and status tracking (available / rented / under maintenance)
+- **Tenants** — CRUD with optional fields for employment, references, and emergency contacts
+- **Contracts** — Link a house to a tenant with financial terms; generate and download a PDF rental contract in Spanish
 
-### `npm start`
+## Tech Stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 14 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS + Headless UI |
+| ORM | Prisma 5 |
+| Database | PostgreSQL 14 |
+| Auth | NextAuth.js v4 + Prisma adapter |
+| PDF | @react-pdf/renderer |
+| Number-to-words | numero-a-letras (Spanish) |
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Data Model
 
-### `npm test`
+```
+Users → manage → Owners → own → Houses → contracted to → Tenants via Contracts
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- **Owners** — property owners with contact info
+- **Houses** — properties linked to an owner, with address and status
+- **Tenants** — renters with optional employment and reference data
+- **Contracts** — financial terms (rent, deposit, deadline, dates, witnesses) with PDF generation
 
-### `npm run build`
+## Getting Started
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Prerequisites
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- Node.js v20+
+- PostgreSQL 14+
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Setup
 
-### `npm run eject`
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+2. Configure environment variables by copying `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+   Set your `DATABASE_URL` and `NEXTAUTH_SECRET`.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+3. Run database migrations:
+   ```bash
+   npm run db:migrate
+   ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+4. (Optional) Seed the database:
+   ```bash
+   npm run db:seed
+   ```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+5. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Scripts
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+| Command | Description |
+|---|---|
+| `npm run dev` | Start development server |
+| `npm run build` | Build for production |
+| `npm run start` | Start production server |
+| `npm run lint` | Run ESLint |
+| `npm run db:migrate` | Run Prisma migrations |
+| `npm run db:studio` | Open Prisma Studio |
+| `npm run db:seed` | Seed the database |
+
+## Deployment
+
+Currently running locally. Planned deployment to Vercel + Supabase (Prisma schema is compatible).

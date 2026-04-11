@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  owners    Owner[]
+  houses    House[]
+  tenants   Tenant[]
+  contracts Contract[]
+
+  // NextAuth required fields
+  accounts  Account[]
+  sessions  Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Owner {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  phone     String
+  email     String?
+  address   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  houses House[]
+}
+
+enum PropertyType {
+  RESIDENTIAL
+  COMMERCIAL
+}
+
+enum HouseStatus {
+  AVAILABLE
+  RENTED
+  MAINTENANCE
+}
+
+model House {
+  id           String       @id @default(cuid())
+  userId       String
+  ownerId      String
+  street       String
+  number       String
+  colony       String
+  city         String
+  state        String
+  zipCode      String
+  propertyType PropertyType @default(RESIDENTIAL)
+  status       HouseStatus  @default(AVAILABLE)
+  notes        String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  owner     Owner      @relation(fields: [ownerId], references: [id])
+  contracts Contract[]
+}
+
+model Tenant {
+  id                       String   @id @default(cuid())
+  userId                   String
+  fullName                 String
+  dateOfBirth              DateTime?
+  curpRfc                  String?
+  phone                    String
+  email                    String?
+  currentAddress           String?
+  emergencyContactName     String?
+  emergencyContactPhone    String?
+  referenceName            String?
+  referencePhone           String?
+  referenceRelationship    String?
+  employerName             String?
+  employerPhone            String?
+  monthlyIncome            Decimal?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contracts Contract[]
+}
+
+enum ContractStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+model Contract {
+  id             String         @id @default(cuid())
+  userId         String
+  houseId        String
+  tenantId       String
+  rentPrice      Decimal
+  depositPrice   Decimal
+  startDate      DateTime
+  startDateDay   Int
+  deadline       Int
+  expirationDate DateTime
+  witnessName    String
+  witness2Name   String
+  signingDate    DateTime       @default(now())
+  status         ContractStatus @default(ACTIVE)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  house  House  @relation(fields: [houseId], references: [id])
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+}

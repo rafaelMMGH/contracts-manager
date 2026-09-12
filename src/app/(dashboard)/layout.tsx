@@ -2,7 +2,10 @@ import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 import { authOptions } from '@/lib/auth'
 import Sidebar from '@/components/Sidebar'
-import ToastContainer from '@/components/Toast'
+import TopHeader from '@/components/TopHeader'
+import MobileChrome from '@/components/mobile/MobileChrome'
+import MobileScrollContent from '@/components/mobile/MobileScrollContent'
+import { Toaster } from 'sonner'
 
 export default async function DashboardLayout({
   children,
@@ -13,12 +16,26 @@ export default async function DashboardLayout({
   if (!session) redirect('/login')
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
-      <Sidebar user={session.user} />
-      <main className="flex-1 overflow-y-auto bg-slate-50">
-        <div className="p-6 md:p-10">{children}</div>
-      </main>
-      <ToastContainer />
-    </div>
+    <MobileChrome user={session.user}>
+      <div className="flex h-[100dvh] overflow-hidden bg-bg">
+        <div className="hidden h-full md:flex">
+          <Sidebar user={session.user} />
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+          <div className="hidden md:block">
+            <TopHeader user={session.user} />
+          </div>
+          <main
+            id="main-content"
+            className="flex-1 overflow-y-auto scroll-smooth [scrollbar-gutter:stable]"
+          >
+            <MobileScrollContent user={session.user}>
+              {children}
+            </MobileScrollContent>
+          </main>
+        </div>
+        <Toaster richColors position="top-center" expand={false} closeButton />
+      </div>
+    </MobileChrome>
   )
 }

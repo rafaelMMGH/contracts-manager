@@ -7,10 +7,11 @@ import FormCard, { FormField, inputClass } from '@/components/FormCard'
 import { updateOwner } from '../../actions'
 import Link from 'next/link'
 
-export default async function EditOwnerPage({ params }: { params: { id: string } }) {
+export default async function EditOwnerPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const session = await getServerSession(authOptions)
   const owner = await prisma.owner.findFirst({
-    where: { id: params.id, userId: session!.user.id },
+    where: { id: id, userId: session!.user.id },
   })
 
   if (!owner) notFound()

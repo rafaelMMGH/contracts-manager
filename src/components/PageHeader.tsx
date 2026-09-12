@@ -1,7 +1,10 @@
 'use client'
 
+import { Plus } from 'lucide-react'
 import Link from 'next/link'
-import { PlusIcon } from '@heroicons/react/24/outline'
+import { usePathname } from 'next/navigation'
+import { isMobileListRoot } from '@/components/mobile/mobileListRoots'
+import { cn } from '@/lib/utils'
 
 interface Props {
   title: string
@@ -11,38 +14,42 @@ interface Props {
   onNew?: () => void
 }
 
-export default function PageHeader({ title, description, createHref, createLabel, onNew }: Props) {
+export default function PageHeader({
+  title,
+  description,
+  createHref,
+  createLabel,
+  onNew,
+}: Props) {
+  const pathname = usePathname()
+  const hideOnMobile = isMobileListRoot(pathname)
+
   return (
-    <div className="flex items-start justify-between mb-7">
-      <div>
-        <h2
-          className="text-slate-900 font-medium leading-tight"
-          style={{
-            fontFamily: 'Cormorant Garamond, Georgia, serif',
-            fontSize: 'clamp(1.5rem, 3vw, 2rem)',
-            fontWeight: 600,
-            textWrap: 'balance',
-          } as React.CSSProperties}
-        >
+    <div
+      className={cn(
+        'mb-6 flex items-end justify-between gap-4',
+        hideOnMobile && 'hidden md:flex'
+      )}
+    >
+      <div className="min-w-0">
+        <h2 className="text-lg font-semibold tracking-tight text-text-primary text-balance">
           {title}
         </h2>
-        {description && (
-          <p className="text-slate-500 text-sm mt-1 font-light">{description}</p>
-        )}
+        {description ? (
+          <p className="mt-1 max-w-[65ch] text-[13px] leading-relaxed text-text-muted">
+            {description}
+          </p>
+        ) : null}
       </div>
 
-      {/* onNew takes priority over createHref */}
       {onNew ? (
-        <button
-          onClick={onNew}
-          className="btn-primary shrink-0"
-        >
-          <PlusIcon className="h-4 w-4" style={{ strokeWidth: 2 }} />
+        <button onClick={onNew} className="btn-primary shrink-0">
+          <Plus className="size-3.5" strokeWidth={2.5} />
           {createLabel ?? 'Nuevo'}
         </button>
       ) : createHref ? (
         <Link href={createHref} className="btn-primary shrink-0">
-          <PlusIcon className="h-4 w-4" style={{ strokeWidth: 2 }} />
+          <Plus className="size-3.5" strokeWidth={2.5} />
           {createLabel ?? 'Nuevo'}
         </Link>
       ) : null}

@@ -17,17 +17,17 @@ export default function ContractPdfPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <Link
-          href="/contracts"
-          className="flex items-center gap-2 text-slate-400 hover:text-white text-sm transition-colors"
+          href="/"
+          className="flex items-center gap-2 text-sm text-slate-400 transition-colors hover:text-white"
         >
           <ArrowLeftIcon className="h-4 w-4" />
-          Volver a contratos
+          Volver al inicio
         </Link>
 
         <a
           href={`/api/contracts/${id}/pdf`}
           download
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+          className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-500"
         >
           <ArrowDownTrayIcon className="h-4 w-4" />
           Descargar PDF
@@ -35,10 +35,13 @@ export default function ContractPdfPage() {
       </div>
 
       {pdfUrl && (
-        <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden" style={{ height: 'calc(100vh - 160px)' }}>
+        <div
+          className="overflow-hidden rounded-xl border border-slate-700 bg-slate-800"
+          style={{ height: 'calc(100vh - 160px)' }}
+        >
           <iframe
             src={pdfUrl}
-            className="w-full h-full"
+            className="h-full w-full"
             title="Vista previa del contrato"
           />
         </div>

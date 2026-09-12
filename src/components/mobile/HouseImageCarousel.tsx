@@ -1,0 +1,106 @@
+'use client'
+
+import { useRef, useState, type UIEvent } from 'react'
+import Image from 'next/image'
+import { cn } from '@/lib/utils'
+import StatusBadge from './StatusBadge'
+import type { MobileBadgeStatus } from './housePlaceholders'
+
+type HouseImageCarouselProps = {
+  images: string[]
+  alt: string
+  badgeStatus: MobileBadgeStatus
+  expiresInDays: number | null
+  className?: string
+  priority?: boolean
+}
+
+export default function HouseImageCarousel({
+  images,
+  alt,
+  badgeStatus,
+  expiresInDays,
+  className,
+  priority = false,
+}: HouseImageCarouselProps) {
+  const slides = images.length > 0 ? images : []
+  const [index, setIndex] = useState(0)
+  const scrollerRef = useRef<HTMLDivElement>(null)
+
+  function onScroll(e: UIEvent<HTMLDivElement>) {
+    const el = e.currentTarget
+    if (el.clientWidth <= 0) return
+    const next = Math.round(el.scrollLeft / el.clientWidth)
+    setIndex(Math.max(0, Math.min(next, slides.length - 1)))
+  }
+
+  function goTo(i: number) {
+    const el = scrollerRef.current
+    if (!el) return
+    el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' })
+  }
+
+  if (slides.length === 0) return null
+
+  return (
+    <div
+      className={cn(
+        'relative aspect-[16/10] w-full overflow-hidden rounded-[2rem]',
+        className
+      )}
+    >
+      <div
+        ref={scrollerRef}
+        onScroll={onScroll}
+        className={cn(
+          'flex h-full w-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden',
+          'scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+        )}
+        aria-label="Galería del inmueble"
+      >
+        {slides.map((src, i) => (
+          <div
+            key={`${src}-${i}`}
+            className="relative h-full w-full shrink-0 snap-center"
+          >
+            <Image
+              src={src}
+              alt={i === 0 ? alt : `${alt} — foto ${i + 1}`}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 640px"
+              priority={priority && i === 0}
+            />
+          </div>
+        ))}
+      </div>
+
+      <StatusBadge
+        status={badgeStatus}
+        variant="onImage"
+        expiresInDays={expiresInDays}
+        className="pointer-events-none absolute left-4 top-4 z-10"
+      />
+
+      {slides.length > 1 ? (
+        <div className="pointer-events-none absolute inset-x-0 bottom-3 z-10 flex justify-center gap-1.5">
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => goTo(i)}
+              className={cn(
+                'pointer-events-auto size-1.5 rounded-full transition-[width,background-color] duration-200',
+                i === index
+                  ? 'w-4 bg-white'
+                  : 'bg-white/55 hover:bg-white/80'
+              )}
+              aria-label={`Ir a foto ${i + 1}`}
+              aria-current={i === index ? 'true' : undefined}
+            />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  )
+}

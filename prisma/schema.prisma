@@ -15,10 +15,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  owners    Owner[]
-  houses    House[]
-  tenants   Tenant[]
-  contracts Contract[]
+  owners                Owner[]
+  houses                House[]
+  tenants               Tenant[]
+  contracts             Contract[]
+  deviceTokens          DeviceToken[]
+  contractNotifications ContractNotification[]
 
   // NextAuth required fields
   accounts  Account[]
@@ -82,6 +84,7 @@ model House {
   id           String       @id @default(cuid())
   userId       String
   ownerId      String
+  name         String?
   street       String
   number       String
   colony       String
@@ -147,7 +150,30 @@ model Contract {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  house  House  @relation(fields: [houseId], references: [id])
-  tenant Tenant @relation(fields: [tenantId], references: [id])
+  user          User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  house         House                  @relation(fields: [houseId], references: [id])
+  tenant        Tenant                 @relation(fields: [tenantId], references: [id])
+  notifications ContractNotification[]
+}
+
+model DeviceToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ContractNotification {
+  id               String    @id @default(cuid())
+  contractId       String
+  userId           String
+  daysBeforeExpiry Int?
+  specificDate     DateTime?
+  sent             Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

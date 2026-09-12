@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Lint, test, and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Stub values so Next/Prisma can build without production secrets
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/contracts_manager_ci
+      NEXTAUTH_SECRET: ci-build-secret-at-least-32-characters-long
+      NEXTAUTH_URL: http://localhost:3000
+      MOBILE_JWT_SECRET: ci-mobile-jwt-secret-at-least-32-chars
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build

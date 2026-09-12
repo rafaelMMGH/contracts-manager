@@ -1,15 +1,44 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { Loader2, Building2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils'
+
+function BrandMark({ inverted = false, className }: { inverted?: boolean; className?: string }) {
+  return (
+    <div className={cn('flex items-center gap-3', className)}>
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-brand">
+        <Building2 className="size-4" strokeWidth={2} />
+      </div>
+      <div className="min-w-0">
+        <p
+          className={cn(
+            'text-[13px] font-semibold leading-none tracking-tight',
+            inverted ? 'text-white' : 'text-text-primary'
+          )}
+        >
+          Contratos
+        </p>
+        <p className={cn('mt-0.5 text-[10px]', inverted ? 'text-white/55' : 'text-text-muted')}>
+          Bienes raíces
+        </p>
+      </div>
+    </div>
+  )
+}
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail]       = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError]       = useState('')
-  const [loading, setLoading]   = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -27,208 +56,126 @@ export default function LoginPage() {
     if (result?.error) {
       setError('Correo o contraseña incorrectos')
     } else {
-      router.push('/dashboard')
+      router.push('/')
       router.refresh()
     }
   }
 
   return (
-    <div className="min-h-screen flex" style={{ backgroundColor: '#f8fafc' }}>
+    <div className="grid min-h-[100dvh] bg-bg lg:grid-cols-[1.2fr_1fr]">
+      <aside className="relative hidden overflow-hidden lg:block">
+        <Image
+          src="/login-hero.jpg"
+          alt="Contrato de arrendamiento sobre una mesa en un departamento iluminado"
+          fill
+          priority
+          sizes="55vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-900/85 via-brand-800/55 to-brand-500/30" />
 
-      {/* ── Left decorative panel ─────────────────────────────────── */}
-      <div
-        className="hidden lg:flex flex-col justify-between w-[400px] shrink-0 px-12 py-14 border-r border-slate-200"
-        style={{ backgroundColor: '#f1f5f9' }}
+        <div className="relative z-10 flex h-full min-h-[100dvh] flex-col justify-between p-10 xl:p-14">
+          <BrandMark inverted />
+
+          <div className="login-reveal max-w-md space-y-4">
+            <h2 className="text-4xl font-semibold tracking-tight text-white text-balance xl:text-5xl">
+              Claridad en cada arrendamiento
+            </h2>
+            <p className="max-w-[36ch] text-base leading-relaxed text-white/70">
+              Contratos, inmuebles e inquilinos en un solo lugar, listos cuando los necesitas.
+            </p>
+          </div>
+
+          <p className="text-xs text-white/40">Sistema de gestión de propiedades</p>
+        </div>
+      </aside>
+
+      <main
+        id="main-content"
+        className="relative flex items-center justify-center px-6 py-12 sm:px-10"
       >
-        {/* Brand */}
-        <div className="flex items-center gap-3">
-          <div
-            className="w-9 h-9 flex items-center justify-center rounded-xl shrink-0"
-            style={{
-              background: 'linear-gradient(135deg, #065f46, #047857)',
-              boxShadow: '0 4px 14px rgba(6,95,70,0.25)',
-            }}
-          >
-            <span
-              className="text-white text-base leading-none select-none"
-              style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontWeight: 700 }}
-            >
-              C
-            </span>
-          </div>
-          <div>
-            <p
-              className="text-slate-900 text-sm tracking-[0.08em] uppercase leading-none"
-              style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontWeight: 600 }}
-            >
-              Contratos
-            </p>
-            <p className="text-slate-400 text-[10px] tracking-[0.14em] uppercase mt-0.5 font-light">
-              Manager
-            </p>
-          </div>
-        </div>
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_100%_0%,rgba(67,97,238,0.08),transparent_55%)]"
+        />
 
-        {/* Quote */}
-        <div className="space-y-5">
-          <div className="w-8 h-0.5 rounded-full" style={{ backgroundColor: '#065f46' }} />
-          <blockquote>
-            <p
-              className="text-[22px] leading-[1.55] text-slate-600"
-              style={{
-                fontFamily: 'Cormorant Garamond, Georgia, serif',
-                fontStyle: 'italic',
-                fontWeight: 400,
-              }}
-            >
-              Gestiona tus contratos de arrendamiento con claridad y confianza.
-            </p>
-          </blockquote>
-          <p className="text-xs text-slate-400 tracking-wide uppercase font-light">
-            Sistema de gestión de propiedades
-          </p>
-        </div>
+        <div className="login-reveal relative w-full max-w-[380px]">
+          <BrandMark className="mb-10 lg:hidden" />
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { label: 'Inmuebles', value: '—' },
-            { label: 'Contratos', value: '—' },
-            { label: 'Inquilinos', value: '—' },
-          ].map((s) => (
-            <div
-              key={s.label}
-              className="rounded-xl px-3 py-3 bg-white border border-slate-200"
-            >
-              <p
-                className="text-lg leading-none text-slate-900"
-                style={{ fontFamily: 'Space Mono, monospace', fontWeight: 700 }}
-              >
-                {s.value}
-              </p>
-              <p className="text-[10px] text-slate-400 tracking-[0.10em] uppercase mt-1.5 font-light">
-                {s.label}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Right form panel ──────────────────────────────────────── */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-sm">
-
-          {/* Mobile brand */}
-          <div className="flex items-center gap-3 mb-10 lg:hidden">
-            <div
-              className="w-9 h-9 flex items-center justify-center rounded-xl shrink-0"
-              style={{
-                background: 'linear-gradient(135deg, #065f46, #047857)',
-                boxShadow: '0 4px 14px rgba(6,95,70,0.25)',
-              }}
-            >
-              <span
-                className="text-white text-base leading-none select-none"
-                style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontWeight: 700 }}
-              >
-                C
-              </span>
-            </div>
-            <p
-              className="text-slate-900 text-sm tracking-[0.08em] uppercase"
-              style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontWeight: 600 }}
-            >
-              Contratos Manager
-            </p>
-          </div>
-
-          {/* Heading */}
-          <div className="mb-8">
-            <h1
-              className="text-[30px] leading-[1.2] text-slate-900"
-              style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontWeight: 600 }}
-            >
+          <div className="mb-8 space-y-2">
+            <h1 className="text-[1.75rem] font-semibold tracking-tight text-text-primary text-balance sm:text-[2rem]">
               Bienvenido de vuelta
             </h1>
-            <p className="text-slate-500 text-sm mt-2 font-light">
-              Ingresa tus credenciales para acceder al sistema.
+            <p className="text-sm leading-relaxed text-slate-500">
+              Ingresa tus credenciales para continuar.
             </p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
-            {error && (
-              <div className="rounded-lg px-4 py-3 text-sm bg-red-50 border border-red-200 text-red-700">
+            {error ? (
+              <div
+                role="alert"
+                className="rounded-lg border border-red-200 bg-red-50 px-3.5 py-3 text-sm text-red-700"
+              >
                 {error}
               </div>
-            )}
+            ) : null}
 
-            {/* Email */}
-            <div className="space-y-1.5">
-              <label
-                htmlFor="email"
-                className="block text-[11px] font-medium tracking-[0.10em] uppercase text-slate-500"
-              >
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-slate-700">
                 Correo electrónico
-              </label>
-              <input
+              </Label>
+              <Input
                 id="email"
                 type="email"
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="tu@correo.com"
-                className="form-input w-full rounded-lg px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-300 bg-white border border-slate-200"
+                aria-invalid={error ? true : undefined}
+                className="h-11 bg-white px-3.5 text-slate-900 placeholder:text-slate-400"
               />
             </div>
 
-            {/* Password */}
-            <div className="space-y-1.5">
-              <label
-                htmlFor="password"
-                className="block text-[11px] font-medium tracking-[0.10em] uppercase text-slate-500"
-              >
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-slate-700">
                 Contraseña
-              </label>
-              <input
+              </Label>
+              <Input
                 id="password"
                 type="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                placeholder="••••••••"
-                className="form-input w-full rounded-lg px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-300 bg-white border border-slate-200"
+                placeholder="Tu contraseña"
+                aria-invalid={error ? true : undefined}
+                className="h-11 bg-white px-3.5 text-slate-900 placeholder:text-slate-400"
               />
             </div>
 
-            {/* Divider */}
-            <div className="h-px w-full bg-slate-100" />
-
-            {/* Submit */}
-            <button
+            <Button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+              className="h-11 w-full border-transparent bg-brand-500 text-white shadow-brand hover:bg-brand-600 hover:text-white active:scale-[0.98]"
             >
               {loading ? (
-                <span className="flex items-center gap-2">
-                  <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                  </svg>
+                <span className="inline-flex items-center gap-2">
+                  <Loader2 className="size-4 animate-spin" strokeWidth={2} />
                   Iniciando sesión…
                 </span>
               ) : (
                 'Iniciar sesión'
               )}
-            </button>
+            </Button>
           </form>
 
-          <p className="text-center text-[11px] text-slate-300 mt-8 tracking-wide">
-            Acceso restringido · Solo usuarios autorizados
+          <p className="mt-8 text-center text-[11px] text-slate-400">
+            Acceso restringido. Solo usuarios autorizados.
           </p>
         </div>
-      </div>
+      </main>
     </div>
   )
 }

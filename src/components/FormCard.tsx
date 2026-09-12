@@ -8,23 +8,17 @@ export default function FormCard({ title, description, children }: Props) {
   return (
     <div className="max-w-2xl">
       <div className="mb-5">
-        <h3
-          className="text-slate-900 font-medium"
-          style={{
-            fontFamily: 'Cormorant Garamond, Georgia, serif',
-            fontSize: '1.25rem',
-            fontWeight: 600,
-            textWrap: 'balance',
-          } as React.CSSProperties}
-        >
+        <h3 className="text-xl font-semibold tracking-tight text-text-primary text-balance">
           {title}
         </h3>
-        {description && (
-          <p className="text-slate-500 text-sm mt-1 font-light">{description}</p>
-        )}
+        {description ? (
+          <p className="mt-1 max-w-[65ch] text-sm leading-relaxed text-slate-500">
+            {description}
+          </p>
+        ) : null}
       </div>
 
-      <div className="rounded-xl p-6 space-y-5 bg-white border border-slate-200 shadow-card">
+      <div className="space-y-5 rounded-2xl border border-border bg-white p-6 shadow-card">
         {children}
       </div>
     </div>
@@ -43,17 +37,15 @@ export function FormField({
   hint?: string
 }) {
   return (
-    <div>
-      <label className="block text-xs font-medium text-slate-500 tracking-[0.06em] uppercase mb-1.5">
+    <div className="space-y-1.5">
+      <label className="block text-sm font-medium text-slate-600">
         {label}
-        {!required && (
-          <span className="text-slate-400 font-normal normal-case tracking-normal ml-1.5">
-            (opcional)
-          </span>
-        )}
+        {!required ? (
+          <span className="ml-1.5 font-normal text-slate-400">(opcional)</span>
+        ) : null}
       </label>
       {children}
-      {hint && <p className="text-[11px] text-slate-400 mt-1.5">{hint}</p>}
+      {hint ? <p className="text-[11px] text-slate-400">{hint}</p> : null}
     </div>
   )
 }

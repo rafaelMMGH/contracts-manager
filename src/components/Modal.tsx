@@ -79,15 +79,7 @@ export default function Modal({ isOpen, onClose, title, children, footer }: Moda
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 shrink-0">
-          <h2
-            className="text-slate-900 leading-tight"
-            style={{
-              fontFamily: 'Cormorant Garamond, Georgia, serif',
-              fontSize: '1.35rem',
-              fontWeight: 600,
-              textWrap: 'balance',
-            } as React.CSSProperties}
-          >
+          <h2 className="text-[1.35rem] font-semibold leading-tight tracking-tight text-text-primary text-balance">
             {title}
           </h2>
           {/* 40×40px hit area (w-10 h-10) — min requirement */}

@@ -6,10 +6,11 @@ import PageHeader from '@/components/PageHeader'
 import TenantForm from '../../TenantForm'
 import { updateTenant } from '../../actions'
 
-export default async function EditTenantPage({ params }: { params: { id: string } }) {
+export default async function EditTenantPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const session = await getServerSession(authOptions)
   const tenant = await prisma.tenant.findFirst({
-    where: { id: params.id, userId: session!.user.id },
+    where: { id: id, userId: session!.user.id },
   })
 
   if (!tenant) notFound()

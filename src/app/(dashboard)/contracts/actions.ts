@@ -5,7 +5,10 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { addMonths } from '@/lib/dates'
-import { ContractStatus } from '@prisma/client'
+import {
+  contractStatusFromExpiration,
+  syncHouseStatusFromContracts,
+} from '@/lib/houseContract'
 
 async function getUserId() {
   const session = await getServerSession(authOptions)
@@ -13,16 +16,23 @@ async function getUserId() {
   return session.user.id
 }
 
+function revalidateContractPaths(houseId?: string | null) {
+  revalidatePath('/')
+  if (houseId) revalidatePath(`/houses/${houseId}`)
+  revalidatePath('/houses')
+}
+
 export async function createContract(formData: FormData) {
   const userId = await getUserId()
   const startDate = new Date(formData.get('startDate') as string)
   const deadline = parseInt(formData.get('deadline') as string)
   const expirationDate = addMonths(startDate, deadline)
+  const houseId = formData.get('houseId') as string
 
-  const contract = await prisma.contract.create({
+  await prisma.contract.create({
     data: {
       userId,
-      houseId: formData.get('houseId') as string,
+      houseId,
       tenantId: formData.get('tenantId') as string,
       rentPrice: parseFloat(formData.get('rentPrice') as string),
       depositPrice: parseFloat(formData.get('depositPrice') as string),
@@ -33,17 +43,16 @@ export async function createContract(formData: FormData) {
       witnessName: formData.get('witnessName') as string,
       witness2Name: formData.get('witness2Name') as string,
       signingDate: new Date(),
-      status: 'ACTIVE',
+      status: contractStatusFromExpiration(expirationDate),
     },
   })
 
-  // Mark house as rented
   await prisma.house.update({
-    where: { id: formData.get('houseId') as string },
+    where: { id: houseId },
     data: { status: 'RENTED' },
   })
 
-  revalidatePath('/contracts')
+  revalidateContractPaths(houseId)
 }
 
 export async function updateContract(id: string, formData: FormData) {
@@ -51,11 +60,19 @@ export async function updateContract(id: string, formData: FormData) {
   const startDate = new Date(formData.get('startDate') as string)
   const deadline = parseInt(formData.get('deadline') as string)
   const expirationDate = addMonths(startDate, deadline)
+  const houseId = formData.get('houseId') as string
+  const status = contractStatusFromExpiration(expirationDate)
+
+  const existing = await prisma.contract.findFirst({
+    where: { id, userId },
+    select: { houseId: true },
+  })
+  if (!existing) throw new Error('Contrato no encontrado')
 
   await prisma.contract.updateMany({
     where: { id, userId },
     data: {
-      houseId: formData.get('houseId') as string,
+      houseId,
       tenantId: formData.get('tenantId') as string,
       rentPrice: parseFloat(formData.get('rentPrice') as string),
       depositPrice: parseFloat(formData.get('depositPrice') as string),
@@ -65,15 +82,37 @@ export async function updateContract(id: string, formData: FormData) {
       expirationDate,
       witnessName: formData.get('witnessName') as string,
       witness2Name: formData.get('witness2Name') as string,
-      status: formData.get('status') as ContractStatus,
+      status,
     },
   })
 
-  revalidatePath('/contracts')
+  await prisma.house.update({
+    where: { id: houseId },
+    data: { status: 'RENTED' },
+  })
+
+  // If house changed, sync the previous house too
+  if (existing.houseId !== houseId) {
+    await syncHouseStatusFromContracts(existing.houseId, userId)
+    revalidateContractPaths(existing.houseId)
+  }
+
+  revalidateContractPaths(houseId)
 }
 
+/** Cancelar contrato: delete row + house → Disponible. */
 export async function deleteContract(id: string) {
   const userId = await getUserId()
+  const existing = await prisma.contract.findFirst({
+    where: { id, userId },
+    select: { houseId: true },
+  })
   await prisma.contract.deleteMany({ where: { id, userId } })
-  revalidatePath('/contracts')
+  if (existing?.houseId) {
+    await prisma.house.updateMany({
+      where: { id: existing.houseId, userId },
+      data: { status: 'AVAILABLE' },
+    })
+  }
+  revalidateContractPaths(existing?.houseId)
 }

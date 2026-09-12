@@ -4,40 +4,34 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import {
-  HomeIcon,
-  BuildingOfficeIcon,
-  HomeModernIcon,
-  UsersIcon,
-  DocumentTextIcon,
-  ArrowRightOnRectangleIcon,
-} from '@heroicons/react/24/outline'
+  LayoutDashboard,
+  Home,
+  Users,
+  Building2,
+  LogOut,
+  Plus,
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 const navigation = [
-  { name: 'Dashboard',    href: '/dashboard', icon: HomeIcon           },
-  { name: 'Propietarios', href: '/owners',    icon: BuildingOfficeIcon },
-  { name: 'Inmuebles',    href: '/houses',    icon: HomeModernIcon     },
-  { name: 'Inquilinos',   href: '/tenants',   icon: UsersIcon          },
-  { name: 'Contratos',    href: '/contracts', icon: DocumentTextIcon   },
+  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Inmuebles', href: '/houses', icon: Home },
+  { name: 'Inquilinos', href: '/tenants', icon: Users },
+  { name: 'Propietarios', href: '/owners', icon: Building2 },
 ]
 
 function UserAvatar({ name }: { name?: string | null }) {
   const initials = name
-    ? name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
+    ? name
+        .split(' ')
+        .slice(0, 2)
+        .map((w) => w[0])
+        .join('')
+        .toUpperCase()
     : '?'
   return (
-    <div
-      className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-      style={{
-        background: 'linear-gradient(135deg, #ecfdf5, #d1fae5)',
-        border: '1px solid #a7f3d0',
-      }}
-    >
-      <span
-        className="text-[11px] font-bold leading-none"
-        style={{ fontFamily: 'Space Mono, monospace', color: '#065f46' }}
-      >
-        {initials}
-      </span>
+    <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 text-[11px] font-semibold text-white shadow-brand">
+      {initials}
     </div>
   )
 }
@@ -50,115 +44,84 @@ export default function Sidebar({
   const pathname = usePathname()
 
   return (
-    <aside
-      className="w-[220px] flex flex-col shrink-0 border-r border-slate-200"
-      style={{ backgroundColor: '#f8fafc' }}
-    >
-      {/* ── Brand ────────────────────────────────── */}
-      <div className="px-5 pt-7 pb-5">
+    <aside className="flex w-[240px] shrink-0 flex-col border-r border-border bg-white">
+      <div className="px-5 pb-4 pt-6">
         <div className="flex items-center gap-3">
-          <div
-            className="w-8 h-8 shrink-0 flex items-center justify-center rounded-[10px]"
-            style={{
-              background: 'linear-gradient(135deg, #065f46, #047857)',
-              boxShadow: '0 2px 10px rgba(6,95,70,0.25)',
-            }}
-          >
-            <span
-              className="text-white text-sm leading-none select-none"
-              style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontWeight: 700 }}
-            >
-              C
-            </span>
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-brand">
+            <Building2 className="size-4" strokeWidth={2} />
           </div>
           <div className="min-w-0">
-            <p
-              className="text-slate-900 text-[13px] leading-none tracking-[0.06em] uppercase"
-              style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontWeight: 600 }}
-            >
+            <p className="text-[13px] font-semibold leading-none tracking-tight text-text-primary">
               Contratos
             </p>
-            <p className="text-slate-400 text-[9px] tracking-[0.16em] uppercase mt-1 font-light">
-              Manager
-            </p>
+            <p className="mt-0.5 text-[10px] text-text-muted">Bienes raíces</p>
           </div>
         </div>
-
-        {/* Accent rule */}
-        <div className="mt-5 h-px bg-slate-200" />
       </div>
 
-      {/* ── Navigation ───────────────────────────── */}
-      <nav className="flex-1 px-2.5 space-y-px overflow-y-auto pb-2">
-        {navigation.map((item) => {
-          const active =
-            pathname === item.href || pathname.startsWith(item.href + '/')
-
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={[
-                'nav-link group flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] select-none',
-                active ? 'active font-medium' : 'font-normal',
-              ].join(' ')}
-              style={
-                active
-                  ? { color: '#065f46', backgroundColor: '#ecfdf5' }
-                  : { color: '#64748b' }
-              }
-            >
-              <item.icon
-                className="h-[16px] w-[16px] shrink-0"
-                style={{
-                  strokeWidth: active ? 2 : 1.5,
-                  color: active ? '#065f46' : '#94a3b8',
-                }}
-              />
-              <span className="tracking-[0.01em] truncate">{item.name}</span>
-              {active && (
-                <span
-                  className="ml-auto w-[5px] h-[5px] rounded-full shrink-0"
-                  style={{ backgroundColor: '#065f46' }}
-                />
-              )}
-            </Link>
-          )
-        })}
-      </nav>
-
-      {/* ── Divider ──────────────────────────────── */}
-      <div className="mx-4 h-px bg-slate-200" />
-
-      {/* ── Footer ───────────────────────────────── */}
-      <div className="px-2.5 pt-3 pb-5 space-y-1">
-        {/* User card */}
-        <div className="rounded-lg px-3 py-2.5 bg-white border border-slate-200">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <UserAvatar name={user.name} />
-            <div className="min-w-0 flex-1">
-              <p className="text-[12px] text-slate-800 font-medium truncate leading-tight">
-                {user.name ?? 'Usuario'}
-              </p>
-              <p className="text-[10px] text-slate-400 truncate mt-0.5">
-                {user.email}
-              </p>
-            </div>
+      <div className="mx-3 mb-4 rounded-xl border border-border bg-brand-50/60 p-3">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <UserAvatar name={user.name} />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[12px] font-medium leading-tight text-text-primary">
+              {user.name ?? 'Usuario'}
+            </p>
+            <p className="mt-0.5 truncate text-[10px] text-text-muted">{user.email}</p>
           </div>
         </div>
+      </div>
 
-        {/* Sign out */}
+      <div className="flex-1 overflow-y-auto">
+        <p className="mb-2 px-5 text-[11px] font-medium text-text-muted">Navegación</p>
+        <nav className="space-y-0.5 px-2.5 pb-2">
+          {navigation.map((item) => {
+            const active =
+              item.href === '/'
+                ? pathname === '/'
+                : pathname === item.href || pathname.startsWith(item.href + '/')
+
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={cn(
+                  'flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] transition-all duration-200 select-none active:scale-[0.98]',
+                  active
+                    ? 'bg-brand-50 font-medium text-brand-700'
+                    : 'font-normal text-slate-500 hover:bg-brand-50/50 hover:text-text-primary'
+                )}
+              >
+                <item.icon
+                  className={cn(
+                    'size-[15px] shrink-0',
+                    active ? 'text-brand-600' : 'text-text-muted'
+                  )}
+                  strokeWidth={active ? 2.2 : 1.7}
+                />
+                <span className="truncate">{item.name}</span>
+                {active ? (
+                  <span className="ml-auto size-1.5 shrink-0 rounded-full bg-brand-500" />
+                ) : null}
+              </Link>
+            )
+          })}
+        </nav>
+      </div>
+
+      <div className="space-y-1.5 border-t border-border px-3 pb-5 pt-3">
+        <Link
+          href="/houses"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-500 px-3 py-2 text-[13px] font-medium text-white shadow-brand transition-all duration-200 hover:bg-brand-600 active:scale-[0.98]"
+        >
+          <Plus className="size-3.5" strokeWidth={2.5} />
+          Nuevo inmueble
+        </Link>
+
         <button
           onClick={() => signOut({ callbackUrl: '/login' })}
-          className="group flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-[12px] font-normal
-            text-slate-400 hover:text-slate-700 hover:bg-slate-100
-            transition-[color,background-color,transform] duration-150 active:scale-[0.97]"
-          style={{ transitionTimingFunction: 'cubic-bezier(0.2,0,0,1)' }}
+          className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[12px] text-text-muted transition-all duration-200 hover:bg-slate-100 hover:text-text-primary active:scale-[0.98]"
         >
-          <ArrowRightOnRectangleIcon
-            className="h-3.5 w-3.5 shrink-0 group-hover:text-red-400 transition-colors duration-150"
-            style={{ strokeWidth: 1.5 }}
-          />
+          <LogOut className="size-3.5 shrink-0" strokeWidth={1.7} />
           Cerrar sesión
         </button>
       </div>

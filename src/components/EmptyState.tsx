@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { PlusIcon } from '@heroicons/react/24/outline'
+import { Plus } from 'lucide-react'
 import { ComponentType } from 'react'
 
 interface Props {
@@ -13,29 +13,35 @@ interface Props {
   onNew?: () => void
 }
 
-export default function EmptyState({ icon: Icon, title, description, createHref, createLabel, onNew }: Props) {
+export default function EmptyState({
+  icon: Icon,
+  title,
+  description,
+  createHref,
+  createLabel,
+  onNew,
+}: Props) {
   return (
-    <div className="rounded-xl p-14 text-center bg-white border border-slate-200">
-      <div className="w-12 h-12 rounded-xl mx-auto mb-5 flex items-center justify-center bg-emerald-50 border border-emerald-100">
-        <Icon className="h-6 w-6 text-emerald-600" style={{ strokeWidth: 1.25 }} />
+    <div className="rounded-2xl border border-border bg-white p-14 text-center shadow-card">
+      <div className="mx-auto mb-5 flex size-12 items-center justify-center rounded-xl border border-brand-100 bg-brand-50">
+        <Icon className="size-6 text-brand-500" style={{ strokeWidth: 1.25 }} />
       </div>
 
-      <h3
-        className="text-slate-800 font-medium mb-1.5"
-        style={{ textWrap: 'balance' } as React.CSSProperties}
-      >
+      <h3 className="mb-1.5 text-base font-semibold tracking-tight text-text-primary text-balance">
         {title}
       </h3>
-      <p className="text-slate-500 text-sm mb-7 font-light">{description}</p>
+      <p className="mx-auto mb-7 max-w-[42ch] text-sm leading-relaxed text-slate-500">
+        {description}
+      </p>
 
       {onNew ? (
         <button onClick={onNew} className="btn-primary">
-          <PlusIcon className="h-4 w-4" style={{ strokeWidth: 2 }} />
+          <Plus className="size-4" strokeWidth={2} />
           {createLabel ?? 'Crear'}
         </button>
       ) : createHref ? (
         <Link href={createHref} className="btn-primary">
-          <PlusIcon className="h-4 w-4" style={{ strokeWidth: 2 }} />
+          <Plus className="size-4" strokeWidth={2} />
           {createLabel ?? 'Crear'}
         </Link>
       ) : null}

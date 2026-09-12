@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Modal from '@/components/Modal'
 import { FormField, inputClass } from '@/components/FormCard'
-import { showToast } from '@/components/Toast'
+import { notify } from '@/lib/toast'
 import { createTenant } from './actions'
 
 interface Props {
@@ -27,27 +27,20 @@ function SectionDivider({ label }: { label: string }) {
 export default function NewTenantModal({ isOpen, onClose }: Props) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const [error, setError] = useState('')
   const formId = 'new-tenant-form'
-
-  function handleClose() {
-    setError('')
-    onClose()
-  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setError('')
     const formData = new FormData(e.currentTarget)
 
     startTransition(async () => {
       try {
         await createTenant(formData)
-        showToast('Inquilino creado correctamente')
-        handleClose()
+        notify.created('Inquilino')
+        onClose()
         router.refresh()
       } catch {
-        setError('Ocurrió un error al guardar. Intenta de nuevo.')
+        notify.saveError()
       }
     })
   }
@@ -55,11 +48,11 @@ export default function NewTenantModal({ isOpen, onClose }: Props) {
   return (
     <Modal
       isOpen={isOpen}
-      onClose={handleClose}
+      onClose={onClose}
       title="Nuevo inquilino"
       footer={
         <>
-          <button type="button" onClick={handleClose} className="btn-ghost">
+          <button type="button" onClick={onClose} className="btn-ghost">
             Cancelar
           </button>
           <button
@@ -81,12 +74,6 @@ export default function NewTenantModal({ isOpen, onClose }: Props) {
         </>
       }
     >
-      {error && (
-        <div className="mb-5 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
-          {error}
-        </div>
-      )}
-
       <form id={formId} onSubmit={handleSubmit} className="space-y-4">
         {/* Datos principales */}
         <div className="grid grid-cols-2 gap-4">

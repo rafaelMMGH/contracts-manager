@@ -8,13 +8,14 @@ import React from 'react'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const session = await getServerSession(authOptions)
   if (!session) return new NextResponse('No autorizado', { status: 401 })
 
   const contract = await prisma.contract.findFirst({
-    where: { id: params.id, userId: session.user.id },
+    where: { id: id, userId: session.user.id },
     include: {
       house: {
         include: { owner: true },

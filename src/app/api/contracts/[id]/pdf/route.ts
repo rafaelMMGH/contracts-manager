@@ -46,7 +46,7 @@ export async function GET(
       witness2Name: contract.witness2Name,
       signingDate: contract.signingDate,
     },
-  }) as any
+  }) as React.ReactElement
 
   const pdfBuffer = await renderToBuffer(element)
 

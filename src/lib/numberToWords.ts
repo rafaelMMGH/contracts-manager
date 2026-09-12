@@ -49,7 +49,7 @@ function convert(n: number): string {
   const thousands = Math.floor((n % 1_000_000) / 1_000)
   const remainder = n % 1_000
 
-  let parts: string[] = []
+  const parts: string[] = []
 
   if (millions > 0) {
     parts.push(millions === 1 ? 'UN MILLÓN' : `${threeDigits(millions)} MILLONES`)

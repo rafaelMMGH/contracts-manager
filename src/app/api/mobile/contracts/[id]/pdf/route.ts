@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getMobileUserId, unauthorized, notFound } from '@/lib/mobileAuth'
 import { prisma } from '@/lib/prisma'
-import { renderToBuffer } from '@react-pdf/renderer'
+import { renderToBuffer, type DocumentProps } from '@react-pdf/renderer'
 import { ContractPDF } from '@/lib/contractPdf'
 import React from 'react'
 
@@ -40,7 +40,7 @@ export async function GET(
       witness2Name: contract.witness2Name,
       signingDate: contract.signingDate,
     },
-  }) as React.ReactElement
+  }) as unknown as React.ReactElement<DocumentProps>
 
   const pdfBuffer = await renderToBuffer(element)
   const filename = `CONTRATO_${tenant.fullName.toUpperCase().replace(/ /g, '_')}.pdf`

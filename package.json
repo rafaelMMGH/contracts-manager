@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "prisma generate && next build --webpack",
+    "build": "prisma generate && if [ \"$VERCEL\" = \"1\" ]; then npx prisma migrate deploy; fi && next build --webpack",
     "start": "next start",
     "lint": "eslint .",
     "test": "vitest run",
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "db:seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },

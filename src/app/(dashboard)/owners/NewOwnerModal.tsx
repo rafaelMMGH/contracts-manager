@@ -4,6 +4,7 @@ import { useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Modal from '@/components/Modal'
 import { FormField, inputClass } from '@/components/FormCard'
+import PhoneInput from '@/components/PhoneInput'
 import { notify } from '@/lib/toast'
 import { createOwner } from './actions'
 
@@ -70,18 +71,12 @@ export default function NewOwnerModal({ isOpen, onClose }: Props) {
             required
             autoFocus
             className={inputClass}
-            placeholder="María Elvira Cruz Ocaña"
+            placeholder="Alejandro de Jesus Martinez Mendez"
           />
         </FormField>
 
         <FormField label="Teléfono" required>
-          <input
-            name="phone"
-            type="tel"
-            required
-            className={inputClass}
-            placeholder="961 000 0000"
-          />
+          <PhoneInput name="phone" required className={inputClass} />
         </FormField>
 
         <FormField label="Correo electrónico">

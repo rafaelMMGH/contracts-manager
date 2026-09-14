@@ -2,10 +2,11 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Pencil, Trash2, Plus, Home, Building2 } from 'lucide-react'
+import { Pencil, Trash2, Plus, Home } from 'lucide-react'
 import { Owner } from '@prisma/client'
 import PageHeader from '@/components/PageHeader'
 import SlideSheet from '@/components/SlideSheet'
+import BuildingComplexPlus from '@/components/icons/BuildingComplexPlus'
 import { useRegisterMobileCreate } from '@/components/mobile/MobileCreateContext'
 import { notify } from '@/lib/toast'
 import { deleteHouse, createHouse, updateHouse } from './actions'
@@ -61,7 +62,7 @@ export default function HousesClient({ houses, owners }: { houses: House[]; owne
   function openEdit(h: House) { setEditing(h); setSheetOpen(true) }
   function closeSheet() { setSheetOpen(false); setEditing(null) }
 
-  useRegisterMobileCreate('Nuevo inmueble', Building2, openCreate)
+  useRegisterMobileCreate('Nuevo inmueble', BuildingComplexPlus, openCreate)
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()

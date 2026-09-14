@@ -6,13 +6,13 @@ import { Drawer } from '@base-ui/react/drawer'
 import {
   Bell,
   ChevronRight,
+  FileClock,
   FileText,
   HelpCircle,
   LogOut,
   Mail,
   Pencil,
-  Receipt,
-  UserRound,
+  UserStar,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -34,22 +34,14 @@ function initials(name?: string | null) {
 
 type ShellRow = {
   label: string
-  icon: typeof UserRound
+  icon: typeof Bell
   href?: string
 }
 
-const SETTINGS_ROWS: ShellRow[] = [
-  { label: 'Cuenta', icon: UserRound },
-  { label: 'Notificaciones', icon: Bell },
-]
-
-const REGISTROS_ROWS: ShellRow[] = [
-  { label: 'Propietarios', icon: UserRound, href: '/owners' },
-  { label: 'Recibos', icon: Receipt },
-]
-
-const HISTORY_ROWS: ShellRow[] = [
-  { label: 'Contratos', icon: FileText },
+const GENERAL_ROWS: ShellRow[] = [
+  { label: 'Propietarios', icon: UserStar, href: '/owners' },
+  { label: 'Historial de contratos', icon: FileClock },
+  { label: 'Ajustes de notificaciones', icon: Bell },
 ]
 
 const HELP_ROWS: ShellRow[] = [
@@ -130,23 +122,6 @@ function ShellList({
   )
 }
 
-function Section({
-  title,
-  children,
-}: {
-  title: string
-  children: React.ReactNode
-}) {
-  return (
-    <section className="space-y-2.5">
-      <h3 className="px-0.5 text-[15px] font-semibold tracking-tight text-text-primary">
-        {title}
-      </h3>
-      {children}
-    </section>
-  )
-}
-
 export default function ProfileSheet({
   open,
   onOpenChange,
@@ -189,19 +164,16 @@ export default function ProfileSheet({
                 </div>
                 <div className="flex w-full items-center px-5 pb-3 pt-1">
                   <Drawer.Title className="text-[22px] font-semibold tracking-tight text-text-primary">
-                    Perfil
+                    Configuración
                   </Drawer.Title>
                   <Drawer.Description className="sr-only">
-                    Opciones de cuenta de {name}. Desliza hacia abajo para
+                    Ajustes y opciones de {name}. Desliza hacia abajo para
                     cerrar.
                   </Drawer.Description>
                 </div>
               </div>
 
-              <div
-                data-base-ui-swipe-ignore
-                className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              >
+              <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 <GlassCard className="p-4">
                   <div className="flex items-center gap-3.5">
                     <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-[15px] font-semibold text-white shadow-brand">
@@ -229,24 +201,12 @@ export default function ProfileSheet({
                   </div>
                 </GlassCard>
 
-                <Section title="Configuración">
-                  <ShellList rows={SETTINGS_ROWS} />
-                </Section>
+                <ShellList
+                  rows={GENERAL_ROWS}
+                  onNavigate={() => onOpenChange(false)}
+                />
 
-                <Section title="Registros">
-                  <ShellList
-                    rows={REGISTROS_ROWS}
-                    onNavigate={() => onOpenChange(false)}
-                  />
-                </Section>
-
-                <Section title="Historial">
-                  <ShellList rows={HISTORY_ROWS} />
-                </Section>
-
-                <Section title="Ayuda">
-                  <ShellList rows={HELP_ROWS} />
-                </Section>
+                <ShellList rows={HELP_ROWS} />
 
                 <button
                   type="button"

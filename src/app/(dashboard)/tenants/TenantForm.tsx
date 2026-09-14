@@ -1,4 +1,5 @@
 import FormCard, { FormField, inputClass } from '@/components/FormCard'
+import PhoneInput from '@/components/PhoneInput'
 import Link from 'next/link'
 import { Tenant } from '@prisma/client'
 
@@ -21,7 +22,7 @@ export default function TenantForm({ action, defaultValues = {} }: Props) {
             <input name="fullName" type="text" required defaultValue={defaultValues.fullName} className={inputClass} placeholder="Juan Pérez García" />
           </FormField>
           <FormField label="Teléfono" required>
-            <input name="phone" type="tel" required defaultValue={defaultValues.phone} className={inputClass} placeholder="961 000 0000" />
+            <PhoneInput name="phone" required defaultValue={defaultValues.phone} className={inputClass} />
           </FormField>
         </div>
 
@@ -51,7 +52,7 @@ export default function TenantForm({ action, defaultValues = {} }: Props) {
               <input name="emergencyContactName" type="text" defaultValue={defaultValues.emergencyContactName ?? ''} className={inputClass} />
             </FormField>
             <FormField label="Teléfono">
-              <input name="emergencyContactPhone" type="tel" defaultValue={defaultValues.emergencyContactPhone ?? ''} className={inputClass} />
+              <PhoneInput name="emergencyContactPhone" defaultValue={defaultValues.emergencyContactPhone ?? ''} className={inputClass} />
             </FormField>
           </div>
         </div>
@@ -64,7 +65,7 @@ export default function TenantForm({ action, defaultValues = {} }: Props) {
               <input name="referenceName" type="text" defaultValue={defaultValues.referenceName ?? ''} className={inputClass} />
             </FormField>
             <FormField label="Teléfono">
-              <input name="referencePhone" type="tel" defaultValue={defaultValues.referencePhone ?? ''} className={inputClass} />
+              <PhoneInput name="referencePhone" defaultValue={defaultValues.referencePhone ?? ''} className={inputClass} />
             </FormField>
             <FormField label="Relación">
               <input name="referenceRelationship" type="text" defaultValue={defaultValues.referenceRelationship ?? ''} className={inputClass} placeholder="Familiar, amigo..." />
@@ -80,7 +81,7 @@ export default function TenantForm({ action, defaultValues = {} }: Props) {
               <input name="employerName" type="text" defaultValue={defaultValues.employerName ?? ''} className={inputClass} />
             </FormField>
             <FormField label="Tel. empleador">
-              <input name="employerPhone" type="tel" defaultValue={defaultValues.employerPhone ?? ''} className={inputClass} />
+              <PhoneInput name="employerPhone" defaultValue={defaultValues.employerPhone ?? ''} className={inputClass} />
             </FormField>
             <FormField label="Ingreso mensual">
               <input name="monthlyIncome" type="number" step="0.01" defaultValue={defaultValues.monthlyIncome?.toString() ?? ''} className={inputClass} placeholder="0.00" />

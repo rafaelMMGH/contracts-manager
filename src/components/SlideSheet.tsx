@@ -11,7 +11,14 @@ interface Props {
   /** Desktop form-sheet max width (px). */
   width?: number
   children: React.ReactNode
-  footer: React.ReactNode
+  /** When omitted, the apple-sheet-footer bar is not rendered. */
+  footer?: React.ReactNode
+  /**
+   * Keep sheet contents mounted while closed so uncontrolled form drafts survive
+   * swipe/backdrop dismiss (cleared on full page reload).
+   * @default false
+   */
+  keepMounted?: boolean
 }
 
 function useIsMobileSheet() {
@@ -36,13 +43,13 @@ function SheetChrome({
   title,
   children,
   footer,
-  swipeHint = false,
 }: {
   title: string
   children: React.ReactNode
-  footer: React.ReactNode
-  swipeHint?: boolean
+  footer?: React.ReactNode
 }) {
+  const hasFooter = footer != null && footer !== false
+
   return (
     <>
       <div className="flex shrink-0 flex-col items-center">
@@ -56,21 +63,26 @@ function SheetChrome({
         </div>
       </div>
 
+      {/* Swipe-down dismiss works here too (scroll still wins when not at top). */}
       <div
-        {...(swipeHint ? { 'data-base-ui-swipe-ignore': '' } : {})}
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5"
+        className={cn(
+          'min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5',
+          !hasFooter && 'pb-[max(1.25rem,env(safe-area-inset-bottom))]'
+        )}
       >
         {children}
       </div>
 
-      <div
-        className={cn(
-          'apple-sheet-footer shrink-0 border-t border-black/[0.06] bg-[#F7F7F7]/95 px-5 pt-3',
-          'pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-xl'
-        )}
-      >
-        {footer}
-      </div>
+      {hasFooter ? (
+        <div
+          className={cn(
+            'apple-sheet-footer shrink-0 border-t border-black/[0.06] bg-[#F7F7F7]/95 px-5 pt-3',
+            'pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-xl'
+          )}
+        >
+          {footer}
+        </div>
+      ) : null}
     </>
   )
 }
@@ -82,6 +94,7 @@ export default function SlideSheet({
   width = 500,
   children,
   footer,
+  keepMounted = false,
 }: Props) {
   const { isMobile, ready } = useIsMobileSheet()
 
@@ -105,14 +118,21 @@ export default function SlideSheet({
         }}
         swipeDirection="down"
       >
-        <Drawer.Portal>
+        <Drawer.Portal keepMounted={keepMounted}>
           <Drawer.Backdrop
             className={cn(
               'apple-drawer-backdrop fixed inset-0 z-50 bg-black/30',
-              'supports-backdrop-filter:backdrop-blur-[2px]'
+              'supports-backdrop-filter:backdrop-blur-[2px]',
+              // keepMounted leaves the portal in the DOM; disable hits when closed
+              keepMounted && !open && 'pointer-events-none'
             )}
           />
-          <Drawer.Viewport className="fixed inset-0 z-50 flex items-end justify-center">
+          <Drawer.Viewport
+            className={cn(
+              'fixed inset-0 z-50 flex items-end justify-center',
+              keepMounted && !open && 'pointer-events-none'
+            )}
+          >
             <Drawer.Popup
               className={cn(
                 'apple-drawer-popup apple-sheet',
@@ -126,11 +146,7 @@ export default function SlideSheet({
                 <Drawer.Description className="sr-only">
                   Desliza hacia abajo para cerrar.
                 </Drawer.Description>
-                <SheetChrome
-                  title={title}
-                  footer={footer}
-                  swipeHint
-                >
+                <SheetChrome title={title} footer={footer}>
                   {children}
                 </SheetChrome>
               </Drawer.Content>
@@ -140,6 +156,8 @@ export default function SlideSheet({
       </Drawer.Root>
     )
   }
+
+  if (!keepMounted && !open) return null
 
   return (
     <>
@@ -155,7 +173,8 @@ export default function SlideSheet({
       />
       <div
         role="dialog"
-        aria-modal="true"
+        aria-modal={open}
+        aria-hidden={!open}
         aria-label={title}
         style={{ ['--sheet-width' as string]: `${width}px` }}
         className={cn(

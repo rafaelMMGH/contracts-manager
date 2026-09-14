@@ -2,11 +2,13 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Pencil, Trash2, Plus, Building2, UserRound } from 'lucide-react'
+import { Pencil, Trash2, Plus, Building2, UserRound, UserStar } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
+import PhoneInput from '@/components/PhoneInput'
 import SlideSheet from '@/components/SlideSheet'
 import { useRegisterMobileCreate } from '@/components/mobile/MobileCreateContext'
 import { notify } from '@/lib/toast'
+import { cn } from '@/lib/utils'
 import { deleteOwner, createOwner, updateOwner } from './actions'
 import {
   AlertDialog,
@@ -88,7 +90,12 @@ export default function OwnersClient({ owners }: { owners: Owner[] }) {
   }
 
   return (
-    <div>
+    <div
+      className={cn(
+        'flex min-h-0 flex-col',
+        owners.length === 0 && 'flex-1'
+      )}
+    >
       <PageHeader
         title="Propietarios"
         description="Administra los propietarios de los inmuebles"
@@ -97,17 +104,40 @@ export default function OwnersClient({ owners }: { owners: Owner[] }) {
       />
 
       {owners.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-[#e4e6ef] p-16 text-center" style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
-          <div className="w-12 h-12 rounded-2xl bg-[#eef2ff] flex items-center justify-center mx-auto mb-4">
-            <Building2 className="w-5 h-5 text-[#215a4e]" strokeWidth={1.8} />
+        <>
+          <div className="-mb-28 flex min-h-0 flex-1 flex-col pb-28 md:hidden">
+            <div className="flex flex-1 flex-col items-center justify-center text-center">
+              <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-black/[0.05]">
+                <UserStar
+                  className="size-7 text-text-muted"
+                  strokeWidth={1.6}
+                />
+              </div>
+              <p className="text-[15px] font-semibold text-text-primary">
+                Sin propietarios
+              </p>
+            </div>
           </div>
-          <p className="text-[14px] font-medium text-[#1e293b] mb-1">Sin propietarios</p>
-          <p className="text-[12px] text-[#94a3b8] mb-5">Agrega tu primer propietario para comenzar</p>
-          <button onClick={openCreate} className="btn-primary mx-auto">
-            <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
-            Nuevo propietario
-          </button>
-        </div>
+
+          <div
+            className="hidden rounded-2xl border border-[#e4e6ef] bg-white p-16 text-center md:block"
+            style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}
+          >
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eef2ff]">
+              <Building2 className="h-5 w-5 text-[#215a4e]" strokeWidth={1.8} />
+            </div>
+            <p className="mb-1 text-[14px] font-medium text-[#1e293b]">
+              Sin propietarios
+            </p>
+            <p className="mb-5 text-[12px] text-[#94a3b8]">
+              Agrega tu primer propietario para comenzar
+            </p>
+            <button type="button" onClick={openCreate} className="btn-primary mx-auto">
+              <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
+              Nuevo propietario
+            </button>
+          </div>
+        </>
       ) : (
         <div className="bg-white rounded-2xl border border-[#e4e6ef] overflow-hidden" style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
           <table className="w-full text-sm">
@@ -159,15 +189,15 @@ export default function OwnersClient({ owners }: { owners: Owner[] }) {
       >
         <form key={editing?.id ?? 'new'} id="owner-form" onSubmit={handleSubmit} className="space-y-4">
           <FormField label="Nombre completo" required>
-            <input name="name" type="text" required defaultValue={editing?.name} className={f} placeholder="María Elvira Cruz Ocaña" />
+            <input name="name" type="text" required defaultValue={editing?.name} className={f} placeholder="Alejandro de Jesus Martinez Mendez" />
           </FormField>
 
           <FormField label="Teléfono" required>
-            <input name="phone" type="tel" required defaultValue={editing?.phone} className={f} placeholder="961 000 0000" />
+            <PhoneInput name="phone" required defaultValue={editing?.phone} className={f} />
           </FormField>
 
           <FormField label="Correo electrónico">
-            <input name="email" type="email" defaultValue={editing?.email ?? ''} className={f} placeholder="propietario@correo.com" />
+            <input name="email" type="email" defaultValue={editing?.email ?? ''} className={f} placeholder="propietario@gmail.com" />
           </FormField>
 
           <FormField label="Domicilio" required hint="Aquí se entregará el pago de renta">

@@ -4,6 +4,7 @@ import { useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Modal from '@/components/Modal'
 import { FormField, inputClass } from '@/components/FormCard'
+import PhoneInput from '@/components/PhoneInput'
 import { notify } from '@/lib/toast'
 import { createTenant } from './actions'
 
@@ -88,7 +89,7 @@ export default function NewTenantModal({ isOpen, onClose }: Props) {
             />
           </FormField>
           <FormField label="Teléfono" required>
-            <input name="phone" type="tel" required className={inputClass} placeholder="961 000 0000" />
+            <PhoneInput name="phone" required className={inputClass} />
           </FormField>
         </div>
 
@@ -116,7 +117,7 @@ export default function NewTenantModal({ isOpen, onClose }: Props) {
             <input name="emergencyContactName" type="text" className={inputClass} />
           </FormField>
           <FormField label="Teléfono">
-            <input name="emergencyContactPhone" type="tel" className={inputClass} />
+            <PhoneInput name="emergencyContactPhone" className={inputClass} />
           </FormField>
         </div>
 
@@ -127,7 +128,7 @@ export default function NewTenantModal({ isOpen, onClose }: Props) {
             <input name="referenceName" type="text" className={inputClass} />
           </FormField>
           <FormField label="Teléfono">
-            <input name="referencePhone" type="tel" className={inputClass} />
+            <PhoneInput name="referencePhone" className={inputClass} />
           </FormField>
           <FormField label="Relación">
             <input name="referenceRelationship" type="text" className={inputClass} placeholder="Familiar…" />
@@ -141,7 +142,7 @@ export default function NewTenantModal({ isOpen, onClose }: Props) {
             <input name="employerName" type="text" className={inputClass} />
           </FormField>
           <FormField label="Tel. empleador">
-            <input name="employerPhone" type="tel" className={inputClass} />
+            <PhoneInput name="employerPhone" className={inputClass} />
           </FormField>
           <FormField label="Ingreso mensual">
             <input name="monthlyIncome" type="number" step="0.01" className={inputClass} placeholder="0.00" />

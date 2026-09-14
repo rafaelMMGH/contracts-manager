@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import PageHeader from '@/components/PageHeader'
 import FormCard, { FormField, inputClass } from '@/components/FormCard'
+import PhoneInput from '@/components/PhoneInput'
 import { updateOwner } from '../../actions'
 import Link from 'next/link'
 
@@ -28,7 +29,7 @@ export default async function EditOwnerPage({ params }: { params: Promise<{ id: 
           </FormField>
 
           <FormField label="Teléfono" required>
-            <input name="phone" type="tel" required defaultValue={owner.phone} className={inputClass} />
+            <PhoneInput name="phone" required defaultValue={owner.phone} className={inputClass} />
           </FormField>
 
           <FormField label="Correo electrónico">

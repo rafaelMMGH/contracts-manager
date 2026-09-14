@@ -20,9 +20,9 @@ import {
   Home,
   Building,
   LayoutGrid,
-  Plus,
   Users,
 } from 'lucide-react'
+import BuildingComplexPlus from '@/components/icons/BuildingComplexPlus'
 import StatusBadge from './StatusBadge'
 import MobileMapOverlay from './MobileMapOverlay'
 import { useRegisterMobileCreate } from './MobileCreateContext'
@@ -67,11 +67,16 @@ export type MobileOwnerOption = {
 }
 
 type MobileHomeProps = {
+  userId: string
   houses: MobileHouseDto[]
   owners: MobileOwnerOption[]
 }
 
-export default function MobileHome({ houses, owners }: MobileHomeProps) {
+function tipDismissedKey(userId: string) {
+  return `contratos.mobileHome.tipDismissed:${userId}`
+}
+
+export default function MobileHome({ userId, houses, owners }: MobileHomeProps) {
   const router = useRouter()
   const [chip, setChip] = useState<ChipId>('todos')
   const [typeFilter, setTypeFilter] = useState<TypeFilterId>('todos')
@@ -80,6 +85,24 @@ export default function MobileHome({ houses, owners }: MobileHomeProps) {
   const [mapOpen, setMapOpen] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [isPending, startFormTransition] = useTransition()
+  const [tipDismissed, setTipDismissed] = useState(false)
+
+  useEffect(() => {
+    try {
+      setTipDismissed(localStorage.getItem(tipDismissedKey(userId)) === '1')
+    } catch {
+      setTipDismissed(false)
+    }
+  }, [userId])
+
+  function dismissTip() {
+    try {
+      localStorage.setItem(tipDismissedKey(userId), '1')
+    } catch {
+      /* ignore quota / private mode */
+    }
+    setTipDismissed(true)
+  }
 
   const filtered = useMemo(() => {
     const byFilters = filterMobileHouses(houses, chip, typeFilter)
@@ -97,7 +120,7 @@ export default function MobileHome({ houses, owners }: MobileHomeProps) {
     setSheetOpen(true)
   }
 
-  useRegisterMobileCreate('Nuevo inmueble', Building2, openCreate)
+  useRegisterMobileCreate('Nuevo inmueble', BuildingComplexPlus, openCreate)
 
   useEffect(() => {
     document.body.dataset.mobileMapOpen = mapOpen ? 'true' : ''
@@ -135,30 +158,6 @@ export default function MobileHome({ houses, owners }: MobileHomeProps) {
   }
 
   function emptyState() {
-    if (portfolioEmpty) {
-      return (
-        <div className="rounded-3xl bg-white p-8 text-center shadow-card">
-          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-brand-50">
-            <Home className="size-5 text-brand-600" strokeWidth={1.8} />
-          </div>
-          <p className="mb-1 text-[14px] font-medium text-text-primary">
-            Sin inmuebles
-          </p>
-          <p className="mb-5 text-[12px] text-text-muted">
-            Agrega tu primer inmueble para comenzar
-          </p>
-          <button
-            type="button"
-            onClick={openCreate}
-            className="btn-primary mx-auto"
-          >
-            <Plus className="size-3.5" strokeWidth={2.5} />
-            Nuevo inmueble
-          </button>
-        </div>
-      )
-    }
-
     return (
       <div className="rounded-3xl bg-white p-8 text-center text-[13px] text-text-muted shadow-card">
         {showList
@@ -169,13 +168,49 @@ export default function MobileHome({ houses, owners }: MobileHomeProps) {
   }
 
   return (
-    <div className="relative flex flex-col bg-bg">
+    <div className="relative flex min-h-0 flex-1 flex-col bg-bg">
       <MobileMapOverlay
         open={mapOpen}
         onClose={() => setMapOpen(false)}
         houses={filtered}
       />
-      <div className="px-1 pb-4 pt-1">
+      {portfolioEmpty ? (
+        <div className="-mb-28 flex min-h-0 flex-1 flex-col px-1 pb-28 pt-1">
+          {!tipDismissed ? (
+            <div className="mb-2 flex items-start gap-4 rounded-3xl border border-border bg-white p-5">
+              <div className="min-w-0 flex-1">
+                <p className="text-[13px] leading-relaxed text-text-secondary">
+                  Agrega un inmueble y empieza a registrar contratos, inquilinos
+                  y a recibir alertas sobre las fechas de pago.
+                </p>
+                <button
+                  type="button"
+                  onClick={dismissTip}
+                  className="mt-3 text-[13px] font-semibold text-brand-600 transition-opacity hover:opacity-80"
+                >
+                  Descartar
+                </button>
+              </div>
+              <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-brand-50">
+                <Home className="size-6 text-brand-600" strokeWidth={1.8} />
+              </div>
+            </div>
+          ) : null}
+
+          <div className="flex flex-1 flex-col items-center justify-center text-center">
+            <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-black/[0.05]">
+              <Building2
+                className="size-7 text-text-muted"
+                strokeWidth={1.6}
+              />
+            </div>
+            <p className="text-[15px] font-semibold text-text-primary">
+              Sin inmuebles
+            </p>
+          </div>
+        </div>
+      ) : (
+      <div className="flex min-h-0 flex-1 flex-col px-1 pb-4 pt-1">
         {/* Liquid-glass chrome: search · map · filter */}
         <div className="mb-4 flex items-center gap-2.5">
           <div className="liquid-glass flex h-12 min-w-0 flex-1 items-center gap-2.5 rounded-full px-3.5">
@@ -327,6 +362,7 @@ export default function MobileHome({ houses, owners }: MobileHomeProps) {
           </>
         )}
       </div>
+      )}
 
       <SlideSheet
         open={sheetOpen}
@@ -343,11 +379,7 @@ export default function MobileHome({ houses, owners }: MobileHomeProps) {
             >
               {isPending ? 'Guardando…' : 'Crear inmueble'}
             </button>
-          ) : (
-            <button type="button" onClick={closeSheet} className="btn-ghost">
-              Cerrar
-            </button>
-          )
+          ) : undefined
         }
       >
         {hasOwners ? (

@@ -2,11 +2,13 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Pencil, Trash2, Plus, Users } from 'lucide-react'
+import { Pencil, Trash2, Plus, Users, UserRoundPlus, UsersRound } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
+import PhoneInput from '@/components/PhoneInput'
 import SlideSheet from '@/components/SlideSheet'
 import { useRegisterMobileCreate } from '@/components/mobile/MobileCreateContext'
 import { notify } from '@/lib/toast'
+import { cn } from '@/lib/utils'
 import { deleteTenant, createTenant, updateTenant } from './actions'
 import {
   AlertDialog,
@@ -83,7 +85,7 @@ export default function TenantsClient({ tenants }: { tenants: Tenant[] }) {
   function openEdit(t: Tenant) { setEditing(t); setSheetOpen(true) }
   function closeSheet() { setSheetOpen(false); setEditing(null) }
 
-  useRegisterMobileCreate('Nuevo inquilino', Users, openCreate)
+  useRegisterMobileCreate('Nuevo inquilino', UserRoundPlus, openCreate)
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -117,7 +119,12 @@ export default function TenantsClient({ tenants }: { tenants: Tenant[] }) {
   }
 
   return (
-    <div>
+    <div
+      className={cn(
+        'flex min-h-0 flex-col',
+        tenants.length === 0 && 'flex-1'
+      )}
+    >
       <PageHeader
         title="Inquilinos"
         description="Administra los inquilinos registrados"
@@ -126,17 +133,40 @@ export default function TenantsClient({ tenants }: { tenants: Tenant[] }) {
       />
 
       {tenants.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-[#e4e6ef] p-16 text-center" style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
-          <div className="w-12 h-12 rounded-2xl bg-[#eef2ff] flex items-center justify-center mx-auto mb-4">
-            <Users className="w-5 h-5 text-[#215a4e]" strokeWidth={1.8} />
+        <>
+          <div className="-mb-28 flex min-h-0 flex-1 flex-col pb-28 md:hidden">
+            <div className="flex flex-1 flex-col items-center justify-center text-center">
+              <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-black/[0.05]">
+                <UsersRound
+                  className="size-7 text-text-muted"
+                  strokeWidth={1.6}
+                />
+              </div>
+              <p className="text-[15px] font-semibold text-text-primary">
+                Sin inquilinos
+              </p>
+            </div>
           </div>
-          <p className="text-[14px] font-medium text-[#1e293b] mb-1">Sin inquilinos</p>
-          <p className="text-[12px] text-[#94a3b8] mb-5">Agrega tu primer inquilino para comenzar</p>
-          <button onClick={openCreate} className="btn-primary mx-auto">
-            <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
-            Nuevo inquilino
-          </button>
-        </div>
+
+          <div
+            className="hidden rounded-2xl border border-[#e4e6ef] bg-white p-16 text-center md:block"
+            style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}
+          >
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eef2ff]">
+              <Users className="h-5 w-5 text-[#215a4e]" strokeWidth={1.8} />
+            </div>
+            <p className="mb-1 text-[14px] font-medium text-[#1e293b]">
+              Sin inquilinos
+            </p>
+            <p className="mb-5 text-[12px] text-[#94a3b8]">
+              Agrega tu primer inquilino para comenzar
+            </p>
+            <button type="button" onClick={openCreate} className="btn-primary mx-auto">
+              <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
+              Nuevo inquilino
+            </button>
+          </div>
+        </>
       ) : (
         <div className="bg-white rounded-2xl border border-[#e4e6ef] overflow-hidden" style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
           <table className="w-full text-sm">
@@ -192,7 +222,7 @@ export default function TenantsClient({ tenants }: { tenants: Tenant[] }) {
               <input name="fullName" type="text" required defaultValue={editing?.fullName} className={f} placeholder="Juan Pérez García" />
             </FormField>
             <FormField label="Teléfono" required>
-              <input name="phone" type="tel" required defaultValue={editing?.phone} className={f} placeholder="961 000 0000" />
+              <PhoneInput name="phone" required defaultValue={editing?.phone} className={f} />
             </FormField>
           </div>
 
@@ -219,7 +249,7 @@ export default function TenantsClient({ tenants }: { tenants: Tenant[] }) {
               <input name="emergencyContactName" type="text" defaultValue={editing?.emergencyContactName ?? ''} className={f} />
             </FormField>
             <FormField label="Teléfono">
-              <input name="emergencyContactPhone" type="tel" defaultValue={editing?.emergencyContactPhone ?? ''} className={f} />
+              <PhoneInput name="emergencyContactPhone" defaultValue={editing?.emergencyContactPhone ?? ''} className={f} />
             </FormField>
           </div>
 
@@ -229,7 +259,7 @@ export default function TenantsClient({ tenants }: { tenants: Tenant[] }) {
               <input name="referenceName" type="text" defaultValue={editing?.referenceName ?? ''} className={f} />
             </FormField>
             <FormField label="Teléfono">
-              <input name="referencePhone" type="tel" defaultValue={editing?.referencePhone ?? ''} className={f} />
+              <PhoneInput name="referencePhone" defaultValue={editing?.referencePhone ?? ''} className={f} />
             </FormField>
             <FormField label="Relación">
               <input name="referenceRelationship" type="text" defaultValue={editing?.referenceRelationship ?? ''} className={f} placeholder="Familiar…" />
@@ -242,7 +272,7 @@ export default function TenantsClient({ tenants }: { tenants: Tenant[] }) {
               <input name="employerName" type="text" defaultValue={editing?.employerName ?? ''} className={f} />
             </FormField>
             <FormField label="Tel. empleador">
-              <input name="employerPhone" type="tel" defaultValue={editing?.employerPhone ?? ''} className={f} />
+              <PhoneInput name="employerPhone" defaultValue={editing?.employerPhone ?? ''} className={f} />
             </FormField>
             <FormField label="Ingreso mensual">
               <input name="monthlyIncome" type="number" step="0.01" defaultValue={toNum(editing?.monthlyIncome ?? null)} className={f} placeholder="0.00" />

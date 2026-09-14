@@ -348,7 +348,7 @@ export default function FloatingTabBar({ className }: FloatingTabBarProps) {
                   isActive ? 'size-[18px]' : 'size-[20px]'
                 )}
                 strokeWidth={isActive ? 2.25 : 1.75}
-                fill={isActive && tab.id === 'inicio' ? 'currentColor' : 'none'}
+                fill={isActive ? 'currentColor' : 'none'}
               />
               {isActive ? (
                 <span className="truncate text-[13px] font-semibold leading-none tracking-tight text-black">

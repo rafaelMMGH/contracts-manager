@@ -18,7 +18,7 @@ export default function MobileScrollContent({
   const showAppHeader = isMobileListRoot(pathname)
 
   return (
-    <div className="mx-auto w-full max-w-[1400px] px-4 pb-28 pt-4 md:p-8 md:pb-10">
+    <div className="mx-auto flex min-h-full w-full max-w-[1400px] flex-col px-4 pb-28 pt-4 md:p-8 md:pb-10">
       {showAppHeader ? (
         <div className="md:hidden">
           <AppHeaderBar user={user} />

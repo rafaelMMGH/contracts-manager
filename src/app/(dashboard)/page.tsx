@@ -97,7 +97,11 @@ export default async function HomePage() {
       exit={{ 'nav-forward': 'nav-forward', 'nav-back': 'nav-back', default: 'none' }}
       default="none"
     >
-      <MobileDashboardClient houses={mobileHouses} owners={owners} />
+      <MobileDashboardClient
+        userId={userId}
+        houses={mobileHouses}
+        owners={owners}
+      />
 
       <div className="hidden space-y-6 md:block">
         <section className="relative overflow-hidden rounded-2xl border border-border shadow-card">

@@ -424,9 +424,8 @@ function PropertyCard({
 }) {
   const router = useRouter()
   const TypeIcon = house.propertyType === 'COMMERCIAL' ? Building2 : Home
-  // Shared morph name only while navigating — idle cards use auto names so
-  // refresh / Strict Mode / overlapping trees can't register duplicate house-${id}.
-  const [shareName, setShareName] = useState<string | null>(null)
+  const imageShareName = `house-${house.id}`
+  const openShareName = `house-open-${house.id}`
 
   const pills = [
     {
@@ -448,7 +447,6 @@ function PropertyCard({
 
   function openDetail() {
     startTransition(() => {
-      setShareName(`house-${house.id}`)
       addTransitionType('nav-forward')
       router.push(`/houses/${house.id}`)
     })
@@ -458,8 +456,12 @@ function PropertyCard({
     <article className="w-full">
       <div className="overflow-hidden rounded-[2rem] bg-transparent">
         <ViewTransition
-          name={shareName ?? undefined}
-          share="morph"
+          name={imageShareName}
+          share={{
+            'nav-forward': 'morph',
+            'nav-back': 'morph',
+            default: 'morph',
+          }}
           default="none"
         >
           <button
@@ -499,14 +501,24 @@ function PropertyCard({
                 {house.address}
               </p>
             </div>
-            <button
-              type="button"
-              onClick={openDetail}
-              aria-label={`Ver detalle de ${house.title}`}
-              className="liquid-glass-brand liquid-glass-flat flex size-11 shrink-0 items-center justify-center rounded-full transition-transform active:scale-[0.96]"
+            <ViewTransition
+              name={openShareName}
+              share={{
+                'nav-forward': 'morph',
+                'nav-back': 'morph',
+                default: 'morph',
+              }}
+              default="none"
             >
-              <ArrowUpRight className="size-[18px]" strokeWidth={2.25} />
-            </button>
+              <button
+                type="button"
+                onClick={openDetail}
+                aria-label={`Ver detalle de ${house.title}`}
+                className="liquid-glass-brand liquid-glass-flat flex size-11 shrink-0 items-center justify-center rounded-full transition-transform active:scale-[0.96]"
+              >
+                <ArrowUpRight className="size-[18px]" strokeWidth={2.25} />
+              </button>
+            </ViewTransition>
           </div>
 
           {/* Price */}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ViewTransition,
@@ -207,8 +207,10 @@ export default function MobileHouseDetail({
   function renderCta() {
     if (house.houseStatus === 'MAINTENANCE') return null
 
+    let cta: ReactNode = null
+
     if (house.houseStatus === 'RENTED' && house.contractId) {
-      return (
+      cta = (
         <a
           href={`/contracts/${house.contractId}/pdf`}
           target="_blank"
@@ -218,10 +220,8 @@ export default function MobileHouseDetail({
           Ver contrato
         </a>
       )
-    }
-
-    if (house.houseStatus === 'AVAILABLE') {
-      return (
+    } else if (house.houseStatus === 'AVAILABLE') {
+      cta = (
         <button
           type="button"
           onClick={() => setContractSheet('create')}
@@ -232,7 +232,21 @@ export default function MobileHouseDetail({
       )
     }
 
-    return null
+    if (!cta) return null
+
+    return (
+      <ViewTransition
+        name={`house-open-${house.id}`}
+        share={{
+          'nav-forward': 'morph',
+          'nav-back': 'morph',
+          default: 'morph',
+        }}
+        default="none"
+      >
+        {cta}
+      </ViewTransition>
+    )
   }
 
   const tenantLabel = contractTenantName ?? house.contractTenantName ?? 'inquilino'
@@ -266,9 +280,9 @@ export default function MobileHouseDetail({
           >
             <MoreHorizontal className="size-5" strokeWidth={1.75} />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="min-w-[12.5rem]">
+          <DropdownMenuContent align="end" sideOffset={8}>
             <DropdownMenuItem onClick={() => setEditHouseOpen(true)}>
-              <Pencil className="size-4" strokeWidth={1.75} />
+              <Pencil strokeWidth={1.75} />
               Editar inmueble
             </DropdownMenuItem>
             {canDeleteHouseAction ? (
@@ -276,7 +290,7 @@ export default function MobileHouseDetail({
                 variant="destructive"
                 onClick={() => setConfirmDeleteHouse(true)}
               >
-                <Trash2 className="size-4" strokeWidth={1.75} />
+                <Trash2 strokeWidth={1.75} />
                 Eliminar inmueble
               </DropdownMenuItem>
             ) : null}
@@ -284,14 +298,14 @@ export default function MobileHouseDetail({
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => setContractSheet('edit')}>
-                  <FilePenLine className="size-4" strokeWidth={1.75} />
+                  <FilePenLine strokeWidth={1.75} />
                   Editar contrato
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   variant="destructive"
                   onClick={() => setConfirmCancelContract(true)}
                 >
-                  <Ban className="size-4" strokeWidth={1.75} />
+                  <Ban strokeWidth={1.75} />
                   Cancelar contrato
                 </DropdownMenuItem>
               </>
@@ -301,7 +315,15 @@ export default function MobileHouseDetail({
       </header>
 
       <div className="relative px-4 pb-6 pt-3">
-        <ViewTransition name={`house-${house.id}`} share="morph" default="none">
+        <ViewTransition
+          name={`house-${house.id}`}
+          share={{
+            'nav-forward': 'morph',
+            'nav-back': 'morph',
+            default: 'morph',
+          }}
+          default="none"
+        >
           <HouseImageCarousel
             images={house.images?.length ? house.images : [house.image]}
             alt={house.title}
@@ -325,14 +347,23 @@ export default function MobileHouseDetail({
           Información del inmueble
         </h3>
 
-        <div className="mt-5 grid grid-cols-3 gap-3">
+        <div className="-mx-2.5 mt-5 grid grid-cols-3 gap-1.5">
           {stats.map(({ label, value, icon: Icon }) => (
-            <div key={label} className="min-w-0">
-              <div className="flex items-center gap-1.5 text-black">
-                <Icon className="size-3.5 shrink-0" strokeWidth={1.75} />
-                <p className="truncate text-[13px] font-medium">{value}</p>
-              </div>
-              <p className="mt-0.5 text-[11px] text-[#8C8C8C]">{label}</p>
+            <div
+              key={label}
+              className="min-w-0 rounded-[24px] bg-[#F3F3F3] px-3 py-6"
+            >
+              <Icon
+                className="size-5 text-black"
+                strokeWidth={1.75}
+                aria-hidden
+              />
+              <p className="mt-4 truncate text-[15px] font-normal leading-tight tracking-tight text-black">
+                {value}
+              </p>
+              <p className="mt-1.5 text-[12px] font-normal leading-none text-[#8C8C8C]">
+                {label}
+              </p>
             </div>
           ))}
         </div>

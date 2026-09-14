@@ -480,9 +480,11 @@
     var(--duration-move) ease-in-out both slide;
 }
 
-/* Shared element morph (house card ↔ detail hero) */
+/* Shared element morph (house card ↔ detail hero / open ↔ back) */
 ::view-transition-group(.morph) {
   animation-duration: var(--duration-move);
+  overflow: clip;
+  z-index: 1;
 }
 
 ::view-transition-image-pair(.morph) {
@@ -491,6 +493,19 @@
 
 @keyframes via-blur {
   30% { filter: blur(3px); }
+}
+
+/* Persistent chrome — keep floating tab + detail header out of page morph */
+::view-transition-group(floating-tab-bar),
+::view-transition-group(house-detail-header) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(floating-tab-bar),
+::view-transition-new(floating-tab-bar),
+::view-transition-old(house-detail-header),
+::view-transition-new(house-detail-header) {
+  animation: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -271,6 +271,7 @@ export default function FloatingTabBar({ className }: FloatingTabBarProps) {
         'fixed inset-x-3 bottom-[max(0.35rem,env(safe-area-inset-bottom))] z-30 flex items-center justify-center gap-2.5 md:hidden',
         className
       )}
+      style={{ viewTransitionName: 'floating-tab-bar' }}
     >
       <nav
         ref={navRef}
@@ -370,16 +371,14 @@ export default function FloatingTabBar({ className }: FloatingTabBarProps) {
             createAction.open()
           }}
           className={cn(
-            'relative flex size-12 shrink-0 items-center justify-center rounded-full',
-            'bg-brand-700 text-white',
-            'shadow-[0_8px_24px_rgba(33,90,78,0.35),0_2px_8px_rgba(15,23,42,0.12)]',
-            'transition-[transform,opacity] active:scale-[0.96]',
+            'liquid-glass-brand relative flex size-12 shrink-0 items-center justify-center rounded-full',
+            'transition-transform active:scale-[0.96]',
             createAction.disabled && 'cursor-not-allowed opacity-45 active:scale-100'
           )}
           aria-label={createAction.label}
           aria-disabled={createAction.disabled || undefined}
         >
-          <FabIcon className="size-5 text-white" strokeWidth={2} />
+          <FabIcon className="size-[18px] text-white" strokeWidth={2} />
         </button>
       ) : null}
     </div>

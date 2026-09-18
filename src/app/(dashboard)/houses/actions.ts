@@ -1,18 +1,11 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { canDeleteHouse } from '@/lib/canDeleteHouse'
 import { attachedContractWhere, findAttachedContract } from '@/lib/houseContract'
+import { requireUserId } from '@/lib/requireUserId'
 import { PropertyType, HouseStatus } from '@prisma/client'
-
-async function getUserId() {
-  const session = await getServerSession(authOptions)
-  if (!session) throw new Error('No autenticado')
-  return session.user.id
-}
 
 function revalidateHousePaths(id?: string) {
   revalidatePath('/')
@@ -41,7 +34,7 @@ async function resolveHouseStatus(
 }
 
 export async function createHouse(formData: FormData) {
-  const userId = await getUserId()
+  const userId = await requireUserId()
   const name = requiredHouseName(formData)
   const status = await resolveHouseStatus(null, formData)
 
@@ -66,7 +59,7 @@ export async function createHouse(formData: FormData) {
 }
 
 export async function updateHouse(id: string, formData: FormData) {
-  const userId = await getUserId()
+  const userId = await requireUserId()
   const name = requiredHouseName(formData)
   const status = await resolveHouseStatus(id, formData)
 
@@ -95,7 +88,7 @@ export type DeleteHouseResult =
   | { ok: false; code: 'HAS_CONTRACTS' | 'NOT_FOUND' | 'RENTED' }
 
 export async function deleteHouse(id: string): Promise<DeleteHouseResult> {
-  const userId = await getUserId()
+  const userId = await requireUserId()
 
   const house = await prisma.house.findFirst({
     where: { id, userId },

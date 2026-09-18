@@ -62,6 +62,27 @@
 
 @layer utilities {
   .tabular { font-variant-numeric: tabular-nums; }
+
+  /* Soft frosted CTA dock — full-bleed, translucent, no edge stroke. */
+  .liquid-glass-soft {
+    border-width: 0 !important;
+    border-style: none !important;
+    outline: none !important;
+    --tw-ring-shadow: 0 0 #0000;
+    --tw-ring-offset-shadow: 0 0 #0000;
+    background: rgba(255, 255, 255, 0.18) !important;
+    backdrop-filter: blur(40px) saturate(1.55) !important;
+    -webkit-backdrop-filter: blur(40px) saturate(1.55) !important;
+    box-shadow: 0 -12px 40px rgba(15, 23, 42, 0.08) !important;
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .liquid-glass-soft {
+      background: rgba(255, 255, 255, 0.88) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+  }
 }
 
 /* ─── Component classes ───────────────────────────────────── */
@@ -189,6 +210,35 @@
   }
   .field-input::placeholder { color: #727272; }
 
+  /* Soft lavender → blush mesh for workspace home */
+  .workspace-mesh {
+    background:
+      radial-gradient(ellipse 90% 70% at 12% 8%, rgba(216, 180, 254, 0.55), transparent 55%),
+      radial-gradient(ellipse 80% 60% at 88% 12%, rgba(251, 207, 232, 0.5), transparent 50%),
+      radial-gradient(ellipse 70% 55% at 70% 75%, rgba(254, 215, 170, 0.28), transparent 55%),
+      radial-gradient(ellipse 60% 50% at 20% 80%, rgba(233, 213, 255, 0.35), transparent 50%),
+      linear-gradient(165deg, #faf7fc 0%, #f6f0f8 42%, #f8f4f1 100%);
+  }
+
+  /* Portrait KPI tiles — frosted glass on mesh */
+  .liquid-glass-tile {
+    position: relative;
+    isolation: isolate;
+    background: linear-gradient(
+      165deg,
+      rgba(255, 255, 255, 0.55) 0%,
+      rgba(255, 255, 255, 0.28) 100%
+    );
+    backdrop-filter: blur(28px) saturate(1.45);
+    -webkit-backdrop-filter: blur(28px) saturate(1.45);
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -0.5px 0 rgba(15, 23, 42, 0.04),
+      0 10px 32px rgba(15, 23, 42, 0.06),
+      0 2px 8px rgba(0, 0, 0, 0.03);
+  }
+
   /* Liquid glass — mobile chrome controls (search, icon buttons) */
   .liquid-glass {
     position: relative;
@@ -240,28 +290,28 @@
       inset 0 -0.5px 0 rgba(0, 0, 0, 0.12);
   }
 
-  /* Floating tab bar — denser liquid glass for photo/map readability */
+  /* Floating tab bar — lighter frosted glass (reference-style) */
   .floating-tab-glass {
     position: relative;
     isolation: isolate;
     overflow: hidden;
     border-radius: 9999px;
-    border: 1px solid rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.82);
     background:
       linear-gradient(
-        155deg,
-        rgba(255, 255, 255, 0.82) 0%,
-        rgba(255, 255, 255, 0.62) 48%,
-        rgba(243, 248, 246, 0.72) 100%
+        165deg,
+        rgba(255, 255, 255, 0.72) 0%,
+        rgba(255, 255, 255, 0.42) 55%,
+        rgba(255, 255, 255, 0.5) 100%
       ),
-      rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(40px) saturate(1.65) contrast(1.08);
-    -webkit-backdrop-filter: blur(40px) saturate(1.65) contrast(1.08);
+      rgba(255, 255, 255, 0.38);
+    backdrop-filter: blur(48px) saturate(1.7) contrast(1.06);
+    -webkit-backdrop-filter: blur(48px) saturate(1.7) contrast(1.06);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.9),
-      inset 0 -1px 0 rgba(33, 90, 78, 0.08),
-      0 12px 36px rgba(15, 23, 42, 0.12),
-      0 4px 12px rgba(33, 90, 78, 0.1);
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -0.5px 0 rgba(15, 23, 42, 0.04),
+      0 14px 40px rgba(15, 23, 42, 0.12),
+      0 4px 12px rgba(0, 0, 0, 0.04);
   }
 
   .floating-tab-glass::before {
@@ -273,15 +323,15 @@
     pointer-events: none;
     background:
       radial-gradient(
-        ellipse 80% 60% at 20% -10%,
-        rgba(255, 255, 255, 0.78),
-        transparent 55%
+        ellipse 90% 55% at 50% -15%,
+        rgba(255, 255, 255, 0.85),
+        transparent 58%
       ),
       linear-gradient(
         180deg,
-        rgba(255, 255, 255, 0.55) 0%,
-        rgba(247, 250, 249, 0.28) 42%,
-        transparent 70%
+        rgba(255, 255, 255, 0.5) 0%,
+        rgba(255, 255, 255, 0.12) 45%,
+        transparent 72%
       );
   }
 
@@ -292,13 +342,23 @@
     z-index: 0;
     border-radius: inherit;
     pointer-events: none;
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.45);
   }
 
-  /* Active tab — light gray pill (reference-style), wraps icon + label */
-  .floating-tab-active-pill {
-    background: rgba(0, 0, 0, 0.07);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  /* Separate create FAB — brand green, reference-like elevation */
+  .floating-tab-fab {
+    isolation: isolate;
+    background: linear-gradient(
+      165deg,
+      rgba(52, 120, 105, 0.98) 0%,
+      rgba(33, 90, 78, 0.95) 100%
+    );
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.4),
+      inset 0 -0.5px 0 rgba(0, 0, 0, 0.14),
+      0 12px 28px rgba(33, 90, 78, 0.38),
+      0 4px 10px rgba(15, 23, 42, 0.12);
   }
 
   /* Map overlay pins (MapLibre custom marker) */
@@ -340,6 +400,11 @@
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
     }
+    .liquid-glass-tile {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
     .liquid-glass-brand {
       background: #215a4e;
       backdrop-filter: none;
@@ -350,6 +415,24 @@
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
     }
+    .floating-tab-fab {
+      background: #215a4e;
+    }
+  }
+}
+
+/*
+ * iOS Safari auto-zooms focused fields when computed font-size is < 16px.
+ * Unlayered so it beats Tailwind text-* utilities on small screens.
+ */
+@media (max-width: 767px) {
+  .field-input,
+  select.field-input,
+  textarea.field-input,
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):not([type='button']):not([type='submit']):not([type='reset']):not([type='image']),
+  textarea,
+  select {
+    font-size: 16px !important;
   }
 }
 
@@ -369,6 +452,22 @@
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(33, 90, 78, 0.12);
 }
+.liquid-glass-tile.kpi-card:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -0.5px 0 rgba(15, 23, 42, 0.04),
+    0 8px 20px rgba(15, 23, 42, 0.08),
+    0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+/* KPI row scrolls horizontally — keep drop shadow within scrollport padding */
+.liquid-glass-tile.kpi-card {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -0.5px 0 rgba(15, 23, 42, 0.04),
+    0 6px 18px rgba(15, 23, 42, 0.07),
+    0 1px 4px rgba(0, 0, 0, 0.03);
+}
 .kpi-card:nth-child(1) { animation-delay:   0ms; }
 .kpi-card:nth-child(2) { animation-delay:  75ms; }
 .kpi-card:nth-child(3) { animation-delay: 150ms; }
@@ -378,11 +477,74 @@
   .kpi-card,
   .table-row-anim,
   .contract-row,
-  .pulse-urgent {
+  .pulse-urgent,
+  .property-card__media,
+  .property-card__body,
+  .property-detail-media,
+  .property-detail-sheet {
     animation: none !important;
   }
   .kpi-card:hover {
     transform: none;
+  }
+}
+
+/* ─── Property list — photo + glass merge into one card ──────────── */
+@keyframes propertyCardMediaIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes propertyCardBodyIn {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.property-card__media {
+  transform-origin: center bottom;
+  animation: propertyCardMediaIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--card-delay, 0ms);
+}
+
+.property-card__body {
+  transform-origin: center top;
+  animation: propertyCardBodyIn 0.62s cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* Starts after the photo so the two pieces visibly meet */
+  animation-delay: calc(var(--card-delay, 0ms) + 100ms);
+}
+
+/* Detail page — same merge language as list cards */
+.property-detail-media {
+  transform-origin: center bottom;
+  animation: propertyCardMediaIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.property-detail-sheet {
+  transform-origin: center top;
+  animation: propertyCardBodyIn 0.62s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 100ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .property-card__media,
+  .property-card__body,
+  .property-detail-media,
+  .property-detail-sheet {
+    opacity: 1;
+    transform: none;
+    animation: none !important;
   }
 }
 

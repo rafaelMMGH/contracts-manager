@@ -75,13 +75,11 @@ type MobileHouseDetailProps = {
   contractTenantName: string | null
 }
 
-const ctaClassName = cn(
-  'fixed inset-x-4 z-30 flex items-center justify-center rounded-full bg-brand-500 py-4',
-  'bottom-[max(1rem,env(safe-area-inset-bottom,0px))]',
-  'text-[16px] font-semibold text-white',
-  'shadow-[0_10px_28px_rgba(15,23,42,0.22)]',
-  'transition-all duration-150 hover:bg-brand-600 active:scale-[0.98]',
-  'md:static md:left-auto md:right-auto md:bottom-auto md:z-auto md:mt-8 md:w-full'
+const ctaButtonClassName = cn(
+  'inline-flex shrink-0 items-center justify-center rounded-full bg-brand-500 px-6 py-3.5',
+  'text-[15px] font-semibold text-white',
+  'shadow-[0_8px_20px_rgba(33,90,78,0.32)]',
+  'transition-all duration-150 hover:bg-brand-600 active:scale-[0.98]'
 )
 
 export default function MobileHouseDetail({
@@ -204,117 +202,86 @@ export default function MobileHouseDetail({
     })
   }
 
-  function renderCta() {
+  function renderCtaBar() {
     if (house.houseStatus === 'MAINTENANCE') return null
 
-    let cta: ReactNode = null
+    let action: ReactNode = null
 
     if (house.houseStatus === 'RENTED' && house.contractId) {
-      cta = (
+      action = (
         <a
           href={`/contracts/${house.contractId}/pdf`}
           target="_blank"
           rel="noopener noreferrer"
-          className={ctaClassName}
+          className={ctaButtonClassName}
         >
           Ver contrato
         </a>
       )
     } else if (house.houseStatus === 'AVAILABLE') {
-      cta = (
+      action = (
         <button
           type="button"
           onClick={() => setContractSheet('create')}
-          className={ctaClassName}
+          className={ctaButtonClassName}
         >
           Crear contrato
         </button>
       )
     }
 
-    if (!cta) return null
+    if (!action && house.rentMxn == null) return null
 
     return (
-      <ViewTransition
-        name={`house-open-${house.id}`}
-        share={{
-          'nav-forward': 'morph',
-          'nav-back': 'morph',
-          default: 'morph',
-        }}
-        default="none"
+      <div
+        className={cn(
+          'fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4',
+          'rounded-t-[32px] px-5 pt-4',
+          'pb-[max(1rem,env(safe-area-inset-bottom,0px))]',
+          'liquid-glass-soft'
+        )}
       >
-        {cta}
-      </ViewTransition>
+        <div className="min-w-0 flex-1">
+          {house.rentMxn != null ? (
+            <p className="tabular text-[22px] font-semibold leading-none tracking-tight text-brand-600">
+              {formatRent(house.rentMxn)}
+              <span className="ml-1 text-[12px] font-medium text-text-muted">
+                / mes
+              </span>
+            </p>
+          ) : (
+            <p className="text-[13px] font-medium text-text-muted">
+              Sin renta activa
+            </p>
+          )}
+        </div>
+        {action ? (
+          <ViewTransition
+            name={`house-open-${house.id}`}
+            share={{
+              'nav-forward': 'morph',
+              'nav-back': 'morph',
+              default: 'morph',
+            }}
+            default="none"
+          >
+            {action}
+          </ViewTransition>
+        ) : null}
+      </div>
     )
   }
 
   const tenantLabel = contractTenantName ?? house.contractTenantName ?? 'inquilino'
+  const showCtaBar =
+    house.houseStatus !== 'MAINTENANCE' &&
+    (house.rentMxn != null ||
+      house.houseStatus === 'AVAILABLE' ||
+      (house.houseStatus === 'RENTED' && Boolean(house.contractId)))
 
   return (
     <div className="relative -mx-4 -mt-4 -mb-28 flex min-h-full flex-col bg-[#F7F7F7] md:mb-0">
-      <header
-        className={cn(
-          'sticky top-0 z-20 flex items-center justify-between px-4 pb-3',
-          'pt-[calc(0.75rem+env(safe-area-inset-top))]',
-          'border-b border-white/55 bg-[#F7F7F7]/72 backdrop-blur-xl',
-          'shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_24px_rgba(15,23,42,0.06)]'
-        )}
-        style={{ viewTransitionName: 'house-detail-header' }}
-      >
-        <button
-          type="button"
-          onClick={handleBack}
-          className="flex size-11 items-center justify-center rounded-full bg-[#EFEFEF] text-black transition-transform active:scale-[0.96]"
-          aria-label="Volver"
-        >
-          <ArrowLeft className="size-5" strokeWidth={2} />
-        </button>
-        <h1 className="max-w-[55%] truncate text-center text-[16px] font-medium tracking-tight text-black">
-          {house.title}
-        </h1>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            className="flex size-11 items-center justify-center rounded-full bg-[#EFEFEF] text-black transition-transform outline-none active:scale-[0.96]"
-            aria-label="Acciones"
-          >
-            <MoreHorizontal className="size-5" strokeWidth={1.75} />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" sideOffset={8}>
-            <DropdownMenuItem onClick={() => setEditHouseOpen(true)}>
-              <Pencil strokeWidth={1.75} />
-              Editar inmueble
-            </DropdownMenuItem>
-            {canDeleteHouseAction ? (
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={() => setConfirmDeleteHouse(true)}
-              >
-                <Trash2 strokeWidth={1.75} />
-                Eliminar inmueble
-              </DropdownMenuItem>
-            ) : null}
-            {canManageContract ? (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setContractSheet('edit')}>
-                  <FilePenLine strokeWidth={1.75} />
-                  Editar contrato
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  variant="destructive"
-                  onClick={() => setConfirmCancelContract(true)}
-                >
-                  <Ban strokeWidth={1.75} />
-                  Cancelar contrato
-                </DropdownMenuItem>
-              </>
-            ) : null}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </header>
-
-      <div className="relative px-4 pb-6 pt-3">
+      <div className="property-detail-media relative">
         <ViewTransition
           name={`house-${house.id}`}
           share={{
@@ -329,23 +296,83 @@ export default function MobileHouseDetail({
             alt={house.title}
             badgeStatus={house.badgeStatus}
             expiresInDays={house.expiresInDays}
+            fullBleed
             priority
           />
         </ViewTransition>
+
+        <div
+          className={cn(
+            'pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start justify-between px-4',
+            'pt-[calc(0.75rem+env(safe-area-inset-top,0px))]'
+          )}
+        >
+          <button
+            type="button"
+            onClick={handleBack}
+            className="pointer-events-auto liquid-glass flex size-11 items-center justify-center rounded-full text-text-primary transition-transform active:scale-[0.96]"
+            aria-label="Volver"
+          >
+            <ArrowLeft className="size-5" strokeWidth={2} />
+          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              className="pointer-events-auto liquid-glass flex size-11 items-center justify-center rounded-full text-text-primary transition-transform outline-none active:scale-[0.96]"
+              aria-label="Acciones"
+            >
+              <MoreHorizontal className="size-5" strokeWidth={1.75} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" sideOffset={8}>
+              <DropdownMenuItem onClick={() => setEditHouseOpen(true)}>
+                <Pencil strokeWidth={1.75} />
+                Editar inmueble
+              </DropdownMenuItem>
+              {canDeleteHouseAction ? (
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() => setConfirmDeleteHouse(true)}
+                >
+                  <Trash2 strokeWidth={1.75} />
+                  Eliminar inmueble
+                </DropdownMenuItem>
+              ) : null}
+              {canManageContract ? (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setContractSheet('edit')}>
+                    <FilePenLine strokeWidth={1.75} />
+                    Editar contrato
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={() => setConfirmCancelContract(true)}
+                  >
+                    <Ban strokeWidth={1.75} />
+                    Cancelar contrato
+                  </DropdownMenuItem>
+                </>
+              ) : null}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       <div
         className={cn(
-          'relative z-10 mx-4 mb-4 -mt-2 flex min-h-0 flex-1 flex-col',
-          'rounded-[28px] bg-white px-5 pt-6',
-          'pb-[calc(6rem+env(safe-area-inset-bottom,0px))]',
-          'shadow-[0_-8px_32px_rgba(15,23,42,0.04)]',
-          'md:pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]'
+          'property-detail-sheet relative z-10 -mt-10 flex min-h-0 flex-1 flex-col',
+          'rounded-t-[32px] bg-white px-5 pt-6',
+          showCtaBar
+            ? 'pb-[calc(5.25rem+env(safe-area-inset-bottom,0px))]'
+            : 'pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]',
+          'shadow-[0_-12px_40px_rgba(15,23,42,0.08)]'
         )}
       >
-        <h3 className="text-[20px] font-normal tracking-tight text-black">
-          Información del inmueble
-        </h3>
+        <h1 className="text-[24px] font-semibold tracking-tight text-black text-balance">
+          {house.title}
+        </h1>
+        <p className="mt-1.5 text-[13px] leading-snug text-[#8C8C8C]">
+          {house.address}, {house.city}
+        </p>
 
         <div className="-mx-2.5 mt-5 grid grid-cols-3 gap-1.5">
           {stats.map(({ label, value, icon: Icon }) => (
@@ -368,25 +395,8 @@ export default function MobileHouseDetail({
           ))}
         </div>
 
-        {house.rentMxn != null ? (
-          <p className="mt-6 text-[28px] font-normal tabular-nums tracking-tight text-brand-600">
-            {formatRent(house.rentMxn)}
-            <span className="ml-1.5 text-[13px] font-medium text-[#8C8C8C]">
-              / mes
-            </span>
-          </p>
-        ) : (
-          <p className="mt-6 text-[16px] font-normal text-[#8C8C8C]">
-            Sin renta activa
-          </p>
-        )}
-
-        <p className="mt-3 text-[13px] leading-snug text-[#8C8C8C]">
-          {house.address}, {house.city}
-        </p>
-
         <div className="mt-6">
-          <h3 className="text-[15px] font-medium text-black">Descripción</h3>
+          <h2 className="text-[15px] font-medium text-black">Descripción</h2>
           <p className="mt-2 text-[14px] leading-relaxed text-[#5C5C5C]">
             {expanded || house.description.length <= 110 ? (
               house.description
@@ -413,9 +423,9 @@ export default function MobileHouseDetail({
             </button>
           ) : null}
         </div>
-
-        {renderCta()}
       </div>
+
+      {renderCtaBar()}
 
       <SlideSheet
         open={editHouseOpen}

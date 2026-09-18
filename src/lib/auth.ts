@@ -47,12 +47,38 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
+        return token
       }
+
+      if (!token.id && token.sub) {
+        token.id = token.sub
+      }
+
+      // After a DB reseed the JWT can keep a deleted user id; rebind via email.
+      if (token.id) {
+        const byId = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { id: true },
+        })
+        if (byId) return token
+      }
+
+      if (token.email) {
+        const byEmail = await prisma.user.findUnique({
+          where: { email: token.email as string },
+          select: { id: true },
+        })
+        if (byEmail) {
+          token.id = byEmail.id
+          token.sub = byEmail.id
+        }
+      }
+
       return token
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id as string
+        session.user.id = (token.id as string) || (token.sub as string)
       }
       return session
     },

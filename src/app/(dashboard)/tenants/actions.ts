@@ -1,15 +1,8 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-
-async function getUserId() {
-  const session = await getServerSession(authOptions)
-  if (!session) throw new Error('No autenticado')
-  return session.user.id
-}
+import { requireUserId } from '@/lib/requireUserId'
 
 function optional(value: FormDataEntryValue | null): string | null {
   const str = value as string
@@ -17,7 +10,7 @@ function optional(value: FormDataEntryValue | null): string | null {
 }
 
 export async function createTenant(formData: FormData) {
-  const userId = await getUserId()
+  const userId = await requireUserId()
   const dob = optional(formData.get('dateOfBirth'))
 
   await prisma.tenant.create({
@@ -46,7 +39,7 @@ export async function createTenant(formData: FormData) {
 }
 
 export async function updateTenant(id: string, formData: FormData) {
-  const userId = await getUserId()
+  const userId = await requireUserId()
   const dob = optional(formData.get('dateOfBirth'))
 
   await prisma.tenant.updateMany({
@@ -75,7 +68,7 @@ export async function updateTenant(id: string, formData: FormData) {
 }
 
 export async function deleteTenant(id: string) {
-  const userId = await getUserId()
+  const userId = await requireUserId()
   await prisma.tenant.deleteMany({ where: { id, userId } })
   revalidatePath('/tenants')
 }

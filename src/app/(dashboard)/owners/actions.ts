@@ -1,18 +1,11 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { requireUserId } from '@/lib/requireUserId'
 import { prisma } from '@/lib/prisma'
 
-async function getUserId() {
-  const session = await getServerSession(authOptions)
-  if (!session) throw new Error('No autenticado')
-  return session.user.id
-}
-
 export async function createOwner(formData: FormData) {
-  const userId = await getUserId()
+  const userId = await requireUserId()
 
   await prisma.owner.create({
     data: {
@@ -28,7 +21,7 @@ export async function createOwner(formData: FormData) {
 }
 
 export async function updateOwner(id: string, formData: FormData) {
-  const userId = await getUserId()
+  const userId = await requireUserId()
 
   await prisma.owner.updateMany({
     where: { id, userId },
@@ -44,7 +37,7 @@ export async function updateOwner(id: string, formData: FormData) {
 }
 
 export async function deleteOwner(id: string) {
-  const userId = await getUserId()
+  const userId = await requireUserId()
   await prisma.owner.deleteMany({ where: { id, userId } })
   revalidatePath('/owners')
 }

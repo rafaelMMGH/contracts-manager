@@ -41,6 +41,8 @@ export default function TopHeader({
   const [menuOpen, setMenuOpen] = useState(false)
   const title = getPageTitle(pathname)
 
+  if (pathname === '/') return null
+
   return (
     <header className="relative z-40 flex h-14 shrink-0 items-center gap-4 border-b border-border bg-white/90 px-6 backdrop-blur-sm">
       <h1 className="flex-1 text-[15px] font-semibold tracking-tight text-text-primary text-balance">

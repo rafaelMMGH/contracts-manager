@@ -15,7 +15,8 @@ export default function MobileScrollContent({
   children,
 }: MobileScrollContentProps) {
   const pathname = usePathname()
-  const showAppHeader = isMobileListRoot(pathname)
+  // Home owns its workspace header (avatar + title + KPIs).
+  const showAppHeader = isMobileListRoot(pathname) && pathname !== '/'
 
   return (
     <div className="mx-auto flex min-h-full w-full max-w-[1400px] flex-col px-4 pb-28 pt-4 md:p-8 md:pb-10">

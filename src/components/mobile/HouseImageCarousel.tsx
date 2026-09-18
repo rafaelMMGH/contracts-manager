@@ -13,6 +13,8 @@ type HouseImageCarouselProps = {
   expiresInDays: number | null
   className?: string
   priority?: boolean
+  /** Full-bleed hero for detail — no radius, room for overlay chrome */
+  fullBleed?: boolean
 }
 
 export default function HouseImageCarousel({
@@ -22,6 +24,7 @@ export default function HouseImageCarousel({
   expiresInDays,
   className,
   priority = false,
+  fullBleed = false,
 }: HouseImageCarouselProps) {
   const slides = images.length > 0 ? images : []
   const [index, setIndex] = useState(0)
@@ -45,7 +48,8 @@ export default function HouseImageCarousel({
   return (
     <div
       className={cn(
-        'relative aspect-[16/10] w-full overflow-hidden rounded-[2rem]',
+        'relative w-full overflow-hidden',
+        fullBleed ? 'aspect-[1/1] rounded-none' : 'aspect-[16/10] rounded-[2rem]',
         className
       )}
     >
@@ -79,11 +83,21 @@ export default function HouseImageCarousel({
         status={badgeStatus}
         variant="onImage"
         expiresInDays={expiresInDays}
-        className="pointer-events-none absolute left-4 top-4 z-10"
+        className={cn(
+          'pointer-events-none absolute left-4 z-10',
+          fullBleed
+            ? 'top-[calc(4.25rem+env(safe-area-inset-top,0px))]'
+            : 'top-4'
+        )}
       />
 
       {slides.length > 1 ? (
-        <div className="pointer-events-none absolute inset-x-0 bottom-3 z-10 flex justify-center gap-1.5">
+        <div
+          className={cn(
+            'pointer-events-none absolute inset-x-0 z-10 flex justify-center gap-1.5',
+            fullBleed ? 'bottom-14' : 'bottom-3'
+          )}
+        >
           {slides.map((_, i) => (
             <button
               key={i}

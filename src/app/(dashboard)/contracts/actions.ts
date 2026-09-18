@@ -1,20 +1,13 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { addMonths } from '@/lib/dates'
 import {
   contractStatusFromExpiration,
   syncHouseStatusFromContracts,
 } from '@/lib/houseContract'
-
-async function getUserId() {
-  const session = await getServerSession(authOptions)
-  if (!session) throw new Error('No autenticado')
-  return session.user.id
-}
+import { requireUserId } from '@/lib/requireUserId'
 
 function revalidateContractPaths(houseId?: string | null) {
   revalidatePath('/')
@@ -23,7 +16,7 @@ function revalidateContractPaths(houseId?: string | null) {
 }
 
 export async function createContract(formData: FormData) {
-  const userId = await getUserId()
+  const userId = await requireUserId()
   const startDate = new Date(formData.get('startDate') as string)
   const deadline = parseInt(formData.get('deadline') as string)
   const expirationDate = addMonths(startDate, deadline)
@@ -56,7 +49,7 @@ export async function createContract(formData: FormData) {
 }
 
 export async function updateContract(id: string, formData: FormData) {
-  const userId = await getUserId()
+  const userId = await requireUserId()
   const startDate = new Date(formData.get('startDate') as string)
   const deadline = parseInt(formData.get('deadline') as string)
   const expirationDate = addMonths(startDate, deadline)
@@ -102,7 +95,7 @@ export async function updateContract(id: string, formData: FormData) {
 
 /** Cancelar contrato: delete row + house → Disponible. */
 export async function deleteContract(id: string) {
-  const userId = await getUserId()
+  const userId = await requireUserId()
   const existing = await prisma.contract.findFirst({
     where: { id, userId },
     select: { houseId: true },

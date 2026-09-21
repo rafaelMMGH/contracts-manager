@@ -219,7 +219,6 @@ export default function FloatingTabBar({ className }: FloatingTabBarProps) {
         'fixed inset-x-4 bottom-[max(0.35rem,env(safe-area-inset-bottom))] z-30 flex items-center justify-center gap-2.5 md:hidden',
         className
       )}
-      style={{ viewTransitionName: 'floating-tab-bar' }}
     >
       <nav
         ref={navRef}

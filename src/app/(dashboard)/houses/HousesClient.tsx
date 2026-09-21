@@ -115,7 +115,7 @@ export default function HousesClient({ houses, owners }: { houses: House[]; owne
       {houses.length === 0 ? (
         <div className="bg-white rounded-2xl border border-[#e4e6ef] p-16 text-center" style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}>
           <div className="w-12 h-12 rounded-2xl bg-[#eef2ff] flex items-center justify-center mx-auto mb-4">
-            <Home className="w-5 h-5 text-[#215a4e]" strokeWidth={1.8} />
+            <Home className="w-5 h-5 text-[#3f5c48]" strokeWidth={1.8} />
           </div>
           <p className="text-[14px] font-medium text-[#1e293b] mb-1">Sin inmuebles</p>
           <p className="text-[12px] text-[#94a3b8] mb-5">Agrega tu primer inmueble para comenzar</p>

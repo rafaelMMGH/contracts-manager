@@ -62,7 +62,7 @@ function FormField({
     <div className="space-y-1">
       <label className="block text-[11px] font-medium tracking-wide text-[#64748b]">
         {label}
-        {required && <span className="ml-0.5 text-[#215a4e]">*</span>}
+        {required && <span className="ml-0.5 text-[#3f5c48]">*</span>}
       </label>
       {children}
       {hint && <p className="text-[10px] text-[#94a3b8]">{hint}</p>}
@@ -245,39 +245,38 @@ function OwnerMobileCard({
           }
         }}
         className={cn(
-          'relative z-[1] flex gap-3.5 rounded-[28px] bg-white p-3.5 origin-center',
-          'shadow-[0_8px_28px_rgba(15,23,42,0.06),0_1px_3px_rgba(15,23,42,0.04)]',
+          'relative z-[1] flex gap-3.5 rounded-[28px] p-3.5 origin-center',
+          'liquid-glass-tile',
           'select-none touch-pan-y [-webkit-user-select:none] [-webkit-touch-callout:none]',
-          'outline-none focus-visible:ring-2 focus-visible:ring-brand-500/35',
-          pressed && 'shadow-[0_4px_16px_rgba(15,23,42,0.08),0_1px_2px_rgba(15,23,42,0.05)]'
+          'outline-none focus-visible:ring-2 focus-visible:ring-brand-500/35'
         )}
         style={{
           transform: `translate3d(${offset}px, 0, 0)`,
-          scale: pressed ? 0.96 : 1,
+          scale: pressed ? 0.97 : 1,
           transition: dragging
-            ? 'scale 160ms cubic-bezier(0.2, 0, 0, 1), box-shadow 160ms cubic-bezier(0.2, 0, 0, 1)'
-            : 'transform 280ms cubic-bezier(0.32, 0.72, 0, 1), scale 160ms cubic-bezier(0.2, 0, 0, 1), box-shadow 160ms cubic-bezier(0.2, 0, 0, 1)',
+            ? 'scale 160ms cubic-bezier(0.2, 0, 0, 1)'
+            : 'transform 280ms cubic-bezier(0.32, 0.72, 0, 1), scale 160ms cubic-bezier(0.2, 0, 0, 1)',
         }}
         aria-label={`${owner.name}. Mantén pulsado para editar. Desliza a la izquierda para eliminar.`}
       >
         <div
-          className="flex size-[5.25rem] shrink-0 items-center justify-center rounded-[22px] bg-brand-700 text-[22px] font-semibold tracking-tight text-white"
+          className="flex size-[5.25rem] shrink-0 items-center justify-center rounded-[22px] bg-brand-700 text-[22px] font-semibold tracking-tight text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.22)]"
           aria-hidden
         >
           {ownerInitials(owner.name)}
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
-          <div className="min-w-0">
-            <p className="truncate text-[17px] font-semibold leading-tight tracking-tight text-black">
+          <div className="min-w-0 space-y-1">
+            <p className="truncate text-[17px] font-semibold leading-tight tracking-tight text-text-primary">
               {owner.name}
             </p>
-            <p className="mt-1 truncate text-[13px] leading-snug text-[#8C8C8C]">
+            <p className="mt-0 truncate text-[13px] leading-snug text-text-muted">
               {owner.address}
             </p>
           </div>
 
-          <div className="mt-2.5 flex min-w-0 items-center gap-2.5 text-[#8C8C8C]">
+          <div className="mt-2.5 flex min-w-0 items-center gap-2.5 text-text-muted">
             <span className="flex min-w-0 max-w-[42%] items-center gap-1">
               <Phone className="size-3 shrink-0" strokeWidth={1.75} aria-hidden />
               <span className="truncate text-[11px] tabular-nums leading-none">
@@ -288,15 +287,15 @@ function OwnerMobileCard({
               <Mail className="size-3 shrink-0" strokeWidth={1.75} aria-hidden />
               <span className="truncate text-[11px] leading-none">{email}</span>
             </span>
-            <span className="flex shrink-0 items-center gap-1">
+            <span className="flex shrink-0 items-center gap-1 rounded-full bg-black/[0.06] px-2 py-1">
               <List className="size-3 shrink-0" strokeWidth={1.75} aria-hidden />
-              <span className="text-[11px] tabular-nums leading-none">
+              <span className="text-[11px] font-medium tabular-nums leading-none text-text-primary">
                 {owner._count.houses}
               </span>
             </span>
           </div>
 
-          <p className="mt-2.5 text-[16px] font-semibold tabular-nums tracking-tight text-brand-700">
+          <p className="mt-2.5 text-[15px] font-semibold tabular-nums tracking-tight text-brand-700">
             {housesLabel(owner._count.houses)}
           </p>
         </div>
@@ -361,7 +360,10 @@ export default function OwnersClient({ owners }: { owners: Owner[] }) {
 
   return (
     <div
-      className={cn('flex min-h-0 flex-col', owners.length === 0 && 'flex-1')}
+      className={cn(
+        'relative flex min-h-0 flex-col',
+        owners.length === 0 && 'flex-1'
+      )}
     >
       <PageHeader
         title="Propietarios"
@@ -374,7 +376,7 @@ export default function OwnersClient({ owners }: { owners: Owner[] }) {
         <>
           <div className="-mb-28 flex min-h-0 flex-1 flex-col pb-28 md:hidden">
             <div className="flex flex-1 flex-col items-center justify-center text-center">
-              <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-black/[0.05]">
+              <div className="mb-4 flex size-16 items-center justify-center rounded-full liquid-glass">
                 <UserStar
                   className="size-7 text-text-muted"
                   strokeWidth={1.6}
@@ -391,7 +393,7 @@ export default function OwnersClient({ owners }: { owners: Owner[] }) {
             style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}
           >
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eef2ff]">
-              <Building2 className="h-5 w-5 text-[#215a4e]" strokeWidth={1.8} />
+              <Building2 className="h-5 w-5 text-[#3f5c48]" strokeWidth={1.8} />
             </div>
             <p className="mb-1 text-[14px] font-medium text-[#1e293b]">
               Sin propietarios
@@ -411,10 +413,16 @@ export default function OwnersClient({ owners }: { owners: Owner[] }) {
         </>
       ) : (
         <>
-          {/* Mobile — Apple-style cards */}
+          {/* Mobile — liquid-glass cards on mesh */}
           <ul className="flex flex-col gap-3 md:hidden">
-            {owners.map((o) => (
-              <li key={o.id}>
+            {owners.map((o, i) => (
+              <li
+                key={o.id}
+                style={{
+                  animation: 'fadeSlideIn 0.4s cubic-bezier(0.2, 0, 0, 1) both',
+                  animationDelay: `${i * 60}ms`,
+                }}
+              >
                 <OwnerMobileCard
                   owner={o}
                   onEdit={() => openEdit(o)}

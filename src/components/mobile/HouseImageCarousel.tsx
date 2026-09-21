@@ -2,6 +2,7 @@
 
 import { useRef, useState, type UIEvent } from 'react'
 import Image from 'next/image'
+import { ViewTransition } from 'react'
 import { cn } from '@/lib/utils'
 import StatusBadge from './StatusBadge'
 import type { MobileBadgeStatus } from './housePlaceholders'
@@ -13,8 +14,10 @@ type HouseImageCarouselProps = {
   expiresInDays: number | null
   className?: string
   priority?: boolean
-  /** Full-bleed hero for detail — no radius, room for overlay chrome */
+  /** Full-bleed hero for detail — match list 16/10 so the shared morph doesn’t stretch */
   fullBleed?: boolean
+  /** Shared-element name — wraps media only so badges/dots stay out of the morph */
+  shareName?: string
 }
 
 export default function HouseImageCarousel({
@@ -25,6 +28,7 @@ export default function HouseImageCarousel({
   className,
   priority = false,
   fullBleed = false,
+  shareName,
 }: HouseImageCarouselProps) {
   const slides = images.length > 0 ? images : []
   const [index, setIndex] = useState(0)
@@ -45,39 +49,54 @@ export default function HouseImageCarousel({
 
   if (slides.length === 0) return null
 
+  const media = (
+    <div
+      ref={scrollerRef}
+      onScroll={onScroll}
+      className={cn(
+        'flex h-full w-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden',
+        'scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+      )}
+      aria-label="Galería del inmueble"
+    >
+      {slides.map((src, i) => (
+        <div
+          key={`${src}-${i}`}
+          className="relative h-full w-full shrink-0 snap-center"
+        >
+          <Image
+            src={src}
+            alt={i === 0 ? alt : `${alt} — foto ${i + 1}`}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 640px"
+            priority={priority && i === 0}
+          />
+        </div>
+      ))}
+    </div>
+  )
+
   return (
     <div
       className={cn(
         'relative w-full overflow-hidden',
-        fullBleed ? 'aspect-[1/1] rounded-none' : 'aspect-[16/10] rounded-[2rem]',
+        /* Keep 16/10 on detail so list→detail morph only changes radius/size, not aspect */
+        fullBleed ? 'aspect-[16/10] rounded-none' : 'aspect-[16/10] rounded-[2rem]',
         className
       )}
     >
-      <div
-        ref={scrollerRef}
-        onScroll={onScroll}
-        className={cn(
-          'flex h-full w-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden',
-          'scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
-        )}
-        aria-label="Galería del inmueble"
-      >
-        {slides.map((src, i) => (
-          <div
-            key={`${src}-${i}`}
-            className="relative h-full w-full shrink-0 snap-center"
-          >
-            <Image
-              src={src}
-              alt={i === 0 ? alt : `${alt} — foto ${i + 1}`}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 640px"
-              priority={priority && i === 0}
-            />
-          </div>
-        ))}
-      </div>
+      {shareName ? (
+        <ViewTransition
+          name={shareName}
+          share="morph"
+          default="none"
+        >
+          <div className="absolute inset-0">{media}</div>
+        </ViewTransition>
+      ) : (
+        media
+      )}
 
       <StatusBadge
         status={badgeStatus}

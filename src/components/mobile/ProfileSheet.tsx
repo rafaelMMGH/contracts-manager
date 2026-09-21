@@ -12,7 +12,6 @@ import {
   LogOut,
   Mail,
   Pencil,
-  UserStar,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -39,7 +38,6 @@ type ShellRow = {
 }
 
 const GENERAL_ROWS: ShellRow[] = [
-  { label: 'Propietarios', icon: UserStar, href: '/owners' },
   { label: 'Historial de contratos', icon: FileClock },
   { label: 'Ajustes de notificaciones', icon: Bell },
 ]
@@ -60,7 +58,7 @@ function GlassCard({
     <div
       className={cn(
         'overflow-hidden rounded-[22px] border border-white/70',
-        'bg-white/55 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_28px_rgba(33,90,78,0.08)]',
+        'bg-white/55 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_28px_rgba(63,92,72,0.08)]',
         'backdrop-blur-xl backdrop-saturate-150',
         className
       )}

@@ -27,7 +27,7 @@ export default async function DashboardLayout({
           </div>
           <main
             id="main-content"
-            className="flex-1 overflow-y-auto scroll-smooth [scrollbar-gutter:stable]"
+            className="workspace-mesh flex-1 overflow-y-auto scroll-smooth [scrollbar-gutter:stable]"
           >
             <MobileScrollContent user={session.user}>
               {children}

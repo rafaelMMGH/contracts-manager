@@ -1,10 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { Bell, FileText, Home, TrendingUp, type LucideIcon } from 'lucide-react'
+import { FileText, Home, TrendingUp, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatCompactCurrency } from '@/lib/formatCompactCurrency'
-import { useOptionalProfileSheet } from '@/components/mobile/ProfileSheetContext'
 
 export type WorkspaceKpiData = {
   totalHouses: number
@@ -54,16 +53,6 @@ const CHIP_CLASS: Record<ChipTone, string> = {
   coral: 'bg-gradient-to-br from-orange-400 to-rose-500 shadow-[0_4px_12px_rgba(249,115,22,0.35)]',
   amber: 'bg-gradient-to-br from-amber-300 to-orange-500 shadow-[0_4px_12px_rgba(245,158,11,0.35)]',
   lime: 'bg-gradient-to-br from-lime-400 to-emerald-500 shadow-[0_4px_12px_rgba(132,204,22,0.35)]',
-}
-
-function initials(name?: string | null) {
-  if (!name) return '?'
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join('')
-    .toUpperCase()
 }
 
 type WorkspaceGlassKpisProps = {
@@ -129,30 +118,10 @@ export function WorkspaceHomeHeader({
   kpis,
   className,
 }: WorkspaceHomeHeaderProps) {
-  const profileSheet = useOptionalProfileSheet()
   const firstName = userName?.split(' ')[0] ?? 'Usuario'
-  const avatar = initials(userName)
 
   return (
     <header className={cn('space-y-6 md:space-y-8', className)}>
-      <div className="flex items-start justify-between gap-3">
-        <button
-          type="button"
-          onClick={() => profileSheet?.openProfile()}
-          className="flex size-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-[14px] font-semibold text-white shadow-brand transition-transform active:scale-[0.96] md:size-14 md:text-[15px]"
-          aria-label="Perfil"
-        >
-          {avatar}
-        </button>
-        <button
-          type="button"
-          className="liquid-glass flex size-12 shrink-0 items-center justify-center rounded-full text-text-secondary transition-transform active:scale-[0.96] md:size-14"
-          aria-label="Notificaciones"
-        >
-          <Bell className="size-[18px] md:size-5" strokeWidth={1.75} />
-        </button>
-      </div>
-
       <h1 className="max-w-[18ch] text-[32px] font-semibold leading-[1.1] tracking-tight text-text-primary text-balance md:text-[40px]">
         Espacio de {firstName}
       </h1>

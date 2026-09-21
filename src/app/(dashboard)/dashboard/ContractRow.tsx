@@ -17,7 +17,7 @@ interface ContractRowProps {
 function getDaysStyle(daysLeft: number) {
   if (daysLeft <= 15) return { bg: '#fef2f2', text: '#b91c1c', border: '#fecaca' }
   if (daysLeft <= 30) return { bg: '#fffbeb', text: '#b45309', border: '#fde68a' }
-  return { bg: '#e8f0ed', text: '#1a4a40', border: '#a7c5bc' }
+  return { bg: '#f4f1ef', text: '#3d352e', border: '#d1c8c1' }
 }
 
 export default function ContractRow({ contract, animationDelay }: ContractRowProps) {

@@ -179,11 +179,6 @@ export default function MobileHome({
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">
-      <div
-        aria-hidden
-        className="workspace-mesh pointer-events-none absolute inset-0 -mx-4 -mb-28 -mt-4 min-h-full"
-      />
-      <div className="relative flex min-h-0 flex-1 flex-col">
       <MobileMapOverlay
         open={mapOpen}
         onClose={() => setMapOpen(false)}
@@ -436,7 +431,6 @@ export default function MobileHome({
           </div>
         )}
       </SlideSheet>
-      </div>
     </div>
   )
 }
@@ -453,7 +447,7 @@ function PropertyCard({
   const router = useRouter()
   const TypeIcon = house.propertyType === 'COMMERCIAL' ? Building2 : Home
   const imageShareName = `house-${house.id}`
-  const openShareName = `house-open-${house.id}`
+  const titleShareName = `house-title-${house.id}`
   const statusLabel = glassStatusLabel(house.badgeStatus, house.expiresInDays)
   const tenantInitial = house.contractTenantName
     ? house.contractTenantName.trim().charAt(0).toUpperCase()
@@ -476,11 +470,7 @@ function PropertyCard({
       <div className="rounded-[2rem] bg-transparent">
         <ViewTransition
           name={imageShareName}
-          share={{
-            'nav-forward': 'morph',
-            'nav-back': 'morph',
-            default: 'morph',
-          }}
+          share="morph"
           default="none"
         >
           <button
@@ -500,6 +490,12 @@ function PropertyCard({
           </button>
         </ViewTransition>
 
+        {/*
+          Card body is not a shared morph target — layout/content differ too much
+          from the detail sheet (stats + description), which caused a stretched
+          raster morph. Continuity comes from the photo morph + title text-morph;
+          the detail sheet uses enter/exit sheet-up instead.
+        */}
         <div className="property-card__body liquid-glass-tile relative z-10 -mt-10 space-y-5 rounded-[28px] px-5 pb-5 pt-5">
           {/* Pills + open */}
           <div className="flex items-start justify-between gap-3">
@@ -519,31 +515,27 @@ function PropertyCard({
               </span>
             </div>
 
-            <ViewTransition
-              name={openShareName}
-              share={{
-                'nav-forward': 'morph',
-                'nav-back': 'morph',
-                default: 'morph',
-              }}
-              default="none"
+            <button
+              type="button"
+              onClick={openDetail}
+              aria-label={`Ver detalle de ${house.title}`}
+              className="liquid-glass liquid-glass-flat flex size-10 shrink-0 items-center justify-center rounded-full text-text-primary transition-transform active:scale-[0.96]"
             >
-              <button
-                type="button"
-                onClick={openDetail}
-                aria-label={`Ver detalle de ${house.title}`}
-                className="liquid-glass liquid-glass-flat flex size-10 shrink-0 items-center justify-center rounded-full text-text-primary transition-transform active:scale-[0.96]"
-              >
-                <ArrowUpRight className="size-[18px]" strokeWidth={2.25} />
-              </button>
-            </ViewTransition>
+              <ArrowUpRight className="size-[18px]" strokeWidth={2.25} />
+            </button>
           </div>
 
           {/* Title + address */}
           <div className="min-w-0 space-y-1.5">
-            <p className="truncate text-[20px] font-semibold leading-snug tracking-tight text-text-primary">
-              {house.title}
-            </p>
+            <ViewTransition
+              name={titleShareName}
+              share="text-morph"
+              default="none"
+            >
+              <p className="truncate text-[20px] font-semibold leading-snug tracking-tight text-text-primary">
+                {house.title}
+              </p>
+            </ViewTransition>
             <p className="line-clamp-2 text-[13px] leading-snug text-text-muted">
               {house.address}
             </p>

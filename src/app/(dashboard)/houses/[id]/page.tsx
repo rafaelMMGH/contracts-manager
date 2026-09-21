@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation'
 import { getServerSession } from 'next-auth'
-import { ViewTransition } from 'react'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getMobileHouseDetail } from '@/lib/mobileHouses'
@@ -31,20 +30,16 @@ export default async function HouseDetailPage({
 
   if (!detail) notFound()
 
+  /* No page-level ViewTransition: live root + shared image morph.
+     Page slides ghost over the live tree and fight the photo morph. */
   return (
-    <ViewTransition
-      enter={{ 'nav-forward': 'nav-forward', 'nav-back': 'nav-back', default: 'none' }}
-      exit={{ 'nav-forward': 'nav-forward', 'nav-back': 'nav-back', default: 'none' }}
-      default="none"
-    >
-      <MobileHouseDetail
-        house={detail.house}
-        owners={owners}
-        tenants={tenants}
-        formDefaults={detail.formDefaults}
-        contractDefaults={detail.contractDefaults}
-        contractTenantName={detail.contractTenantName}
-      />
-    </ViewTransition>
+    <MobileHouseDetail
+      house={detail.house}
+      owners={owners}
+      tenants={tenants}
+      formDefaults={detail.formDefaults}
+      contractDefaults={detail.contractDefaults}
+      contractTenantName={detail.contractTenantName}
+    />
   )
 }

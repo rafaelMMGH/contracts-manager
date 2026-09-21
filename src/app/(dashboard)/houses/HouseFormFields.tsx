@@ -70,7 +70,7 @@ function FormField({
     <div className="space-y-1">
       <label className="block text-[11px] font-medium tracking-wide text-[#64748b]">
         {label}
-        {required ? <span className="ml-0.5 text-[#215a4e]">*</span> : null}
+        {required ? <span className="ml-0.5 text-[#3f5c48]">*</span> : null}
       </label>
       {children}
       {hint ? <p className="text-[10px] text-[#94a3b8]">{hint}</p> : null}

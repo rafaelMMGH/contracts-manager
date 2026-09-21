@@ -76,9 +76,9 @@ type MobileHouseDetailProps = {
 }
 
 const ctaButtonClassName = cn(
-  'inline-flex shrink-0 items-center justify-center rounded-full bg-brand-500 px-6 py-3.5',
+  'relative z-[1] inline-flex shrink-0 items-center justify-center rounded-full bg-brand-500 px-6 py-3.5',
   'text-[15px] font-semibold text-white',
-  'shadow-[0_8px_20px_rgba(33,90,78,0.32)]',
+  'shadow-[0_8px_20px_rgba(63,92,72,0.32)]',
   'transition-all duration-150 hover:bg-brand-600 active:scale-[0.98]'
 )
 
@@ -233,15 +233,8 @@ export default function MobileHouseDetail({
     if (!action && house.rentMxn == null) return null
 
     return (
-      <div
-        className={cn(
-          'fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4',
-          'rounded-t-[32px] px-5 pt-4',
-          'pb-[max(1rem,env(safe-area-inset-bottom,0px))]',
-          'liquid-glass-soft'
-        )}
-      >
-        <div className="min-w-0 flex-1">
+      <div className="property-detail-cta-bar">
+        <div className="relative z-[1] min-w-0 flex-1">
           {house.rentMxn != null ? (
             <p className="tabular text-[22px] font-semibold leading-none tracking-tight text-brand-600">
               {formatRent(house.rentMxn)}
@@ -255,19 +248,7 @@ export default function MobileHouseDetail({
             </p>
           )}
         </div>
-        {action ? (
-          <ViewTransition
-            name={`house-open-${house.id}`}
-            share={{
-              'nav-forward': 'morph',
-              'nav-back': 'morph',
-              default: 'morph',
-            }}
-            default="none"
-          >
-            {action}
-          </ViewTransition>
-        ) : null}
+        {action}
       </div>
     )
   }
@@ -280,26 +261,18 @@ export default function MobileHouseDetail({
       (house.houseStatus === 'RENTED' && Boolean(house.contractId)))
 
   return (
-    <div className="relative -mx-4 -mt-4 -mb-28 flex min-h-full flex-col bg-[#F7F7F7] md:mb-0">
+    <>
+      <div className="relative -mx-4 -mt-4 flex flex-col">
       <div className="property-detail-media relative">
-        <ViewTransition
-          name={`house-${house.id}`}
-          share={{
-            'nav-forward': 'morph',
-            'nav-back': 'morph',
-            default: 'morph',
-          }}
-          default="none"
-        >
-          <HouseImageCarousel
-            images={house.images?.length ? house.images : [house.image]}
-            alt={house.title}
-            badgeStatus={house.badgeStatus}
-            expiresInDays={house.expiresInDays}
-            fullBleed
-            priority
-          />
-        </ViewTransition>
+        <HouseImageCarousel
+          images={house.images?.length ? house.images : [house.image]}
+          alt={house.title}
+          badgeStatus={house.badgeStatus}
+          expiresInDays={house.expiresInDays}
+          fullBleed
+          priority
+          shareName={`house-${house.id}`}
+        />
 
         <div
           className={cn(
@@ -356,74 +329,93 @@ export default function MobileHouseDetail({
           </DropdownMenu>
         </div>
       </div>
-
-      <div
-        className={cn(
-          'property-detail-sheet relative z-10 -mt-10 flex min-h-0 flex-1 flex-col',
-          'rounded-t-[32px] bg-white px-5 pt-6',
-          showCtaBar
-            ? 'pb-[calc(5.25rem+env(safe-area-inset-bottom,0px))]'
-            : 'pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]',
-          'shadow-[0_-12px_40px_rgba(15,23,42,0.08)]'
-        )}
-      >
-        <h1 className="text-[24px] font-semibold tracking-tight text-black text-balance">
-          {house.title}
-        </h1>
-        <p className="mt-1.5 text-[13px] leading-snug text-[#8C8C8C]">
-          {house.address}, {house.city}
-        </p>
-
-        <div className="-mx-2.5 mt-5 grid grid-cols-3 gap-1.5">
-          {stats.map(({ label, value, icon: Icon }) => (
-            <div
-              key={label}
-              className="min-w-0 rounded-[24px] bg-[#F3F3F3] px-3 py-6"
-            >
-              <Icon
-                className="size-5 text-black"
-                strokeWidth={1.75}
-                aria-hidden
-              />
-              <p className="mt-4 truncate text-[15px] font-normal leading-tight tracking-tight text-black">
-                {value}
-              </p>
-              <p className="mt-1.5 text-[12px] font-normal leading-none text-[#8C8C8C]">
-                {label}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-6">
-          <h2 className="text-[15px] font-medium text-black">Descripción</h2>
-          <p className="mt-2 text-[14px] leading-relaxed text-[#5C5C5C]">
-            {expanded || house.description.length <= 110 ? (
-              house.description
-            ) : (
-              <>
-                {house.description.slice(0, 110).trimEnd()}…{' '}
-                <button
-                  type="button"
-                  onClick={() => setExpanded(true)}
-                  className="inline font-medium text-brand-600"
-                >
-                  Leer más
-                </button>
-              </>
-            )}
-          </p>
-          {expanded && house.description.length > 110 ? (
-            <button
-              type="button"
-              onClick={() => setExpanded(false)}
-              className="mt-1 text-[14px] font-medium text-brand-600"
-            >
-              Leer menos
-            </button>
-          ) : null}
-        </div>
       </div>
+
+      <ViewTransition
+        name={`house-body-${house.id}`}
+        share="morph"
+        enter={{
+          'nav-forward': 'sheet-up',
+          'nav-back': 'none',
+          default: 'none',
+        }}
+        exit={{
+          'nav-forward': 'none',
+          'nav-back': 'sheet-down',
+          default: 'none',
+        }}
+        default="none"
+      >
+        <div
+          className={cn(
+            'property-detail-sheet liquid-glass-tile relative z-10 -mx-4 -mt-10 flex min-h-0 flex-col',
+            !showCtaBar && 'flex-1',
+            'rounded-t-[32px] px-5 pt-6',
+            showCtaBar
+              ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom,0px))]'
+              : 'pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]'
+          )}
+        >
+          <h1 className="text-[24px] font-semibold tracking-tight text-text-primary text-balance">
+            {house.title}
+          </h1>
+          <p className="mt-1.5 text-[13px] leading-snug text-text-muted">
+            {house.address}, {house.city}
+          </p>
+
+          <div className="-mx-2.5 mt-5 grid grid-cols-3 gap-1.5">
+            {stats.map(({ label, value, icon: Icon }) => (
+              <div
+                key={label}
+                className="min-w-0 rounded-[24px] bg-black/[0.05] px-3 py-6 backdrop-blur-sm"
+              >
+                <Icon
+                  className="size-5 text-text-primary"
+                  strokeWidth={1.75}
+                  aria-hidden
+                />
+                <p className="mt-4 truncate text-[15px] font-normal leading-tight tracking-tight text-text-primary">
+                  {value}
+                </p>
+                <p className="mt-1.5 text-[12px] font-normal leading-none text-text-muted">
+                  {label}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6">
+            <h2 className="text-[15px] font-medium text-text-primary">
+              Descripción
+            </h2>
+            <p className="mt-2 text-[14px] leading-relaxed text-text-secondary">
+              {expanded || house.description.length <= 110 ? (
+                house.description
+              ) : (
+                <>
+                  {house.description.slice(0, 110).trimEnd()}…{' '}
+                  <button
+                    type="button"
+                    onClick={() => setExpanded(true)}
+                    className="inline font-medium text-brand-600"
+                  >
+                    Leer más
+                  </button>
+                </>
+              )}
+            </p>
+            {expanded && house.description.length > 110 ? (
+              <button
+                type="button"
+                onClick={() => setExpanded(false)}
+                className="mt-1 text-[14px] font-medium text-brand-600"
+              >
+                Leer menos
+              </button>
+            ) : null}
+          </div>
+        </div>
+      </ViewTransition>
 
       {renderCtaBar()}
 
@@ -551,6 +543,6 @@ export default function MobileHouseDetail({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </>
   )
 }

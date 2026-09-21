@@ -109,7 +109,7 @@ function DropdownMenuItem({
         "data-[variant=destructive]:focus:bg-[#B91C1C]/10 data-[variant=destructive]:focus:text-[#B91C1C]",
         "data-disabled:pointer-events-none data-disabled:opacity-40",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
-        "[&_svg]:text-[#215A4E] data-[variant=destructive]:[&_svg]:text-[#B91C1C]",
+        "[&_svg]:text-[#3F5C48] data-[variant=destructive]:[&_svg]:text-[#B91C1C]",
         className
       )}
       {...props}
@@ -137,7 +137,7 @@ function DropdownMenuSubTrigger({
         "flex min-h-11 cursor-default items-center gap-3 rounded-[10px] px-3 py-2.5 text-[15px] font-medium tracking-tight outline-hidden select-none",
         "text-black focus:bg-black/[0.06] focus:text-black",
         "data-inset:pl-9 data-popup-open:bg-black/[0.06] data-open:bg-black/[0.06]",
-        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5 [&_svg]:text-[#215A4E]",
+        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5 [&_svg]:text-[#3F5C48]",
         className
       )}
       {...props}
@@ -197,7 +197,7 @@ function DropdownMenuCheckboxItem({
         data-slot="dropdown-menu-checkbox-item-indicator"
       >
         <MenuPrimitive.CheckboxItemIndicator>
-          <CheckIcon className="size-4 text-[#215A4E]" />
+          <CheckIcon className="size-4 text-[#3F5C48]" />
         </MenuPrimitive.CheckboxItemIndicator>
       </span>
       {children}
@@ -240,7 +240,7 @@ function DropdownMenuRadioItem({
         data-slot="dropdown-menu-radio-item-indicator"
       >
         <MenuPrimitive.RadioItemIndicator>
-          <CheckIcon className="size-4 text-[#215A4E]" />
+          <CheckIcon className="size-4 text-[#3F5C48]" />
         </MenuPrimitive.RadioItemIndicator>
       </span>
       {children}

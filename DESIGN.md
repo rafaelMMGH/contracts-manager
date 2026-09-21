@@ -1,17 +1,18 @@
 ---
 name: Contratos
-description: Mexican arrendamiento operations — forest green, Lufga, light operational surfaces
+description: Mexican arrendamiento operations — olive forest primary, Lufga, stucco-light surfaces
 colors:
-  brand: "#215A4E"
-  brand-hover: "#1A4A40"
-  brand-deep: "#163F37"
-  brand-soft: "#E8F0ED"
-  brand-muted: "#D3E2DD"
+  brand: "#3F5C48"
+  brand-hover: "#334A3B"
+  brand-deep: "#2A3D31"
+  brand-soft: "#E8EEE9"
+  brand-muted: "#D4DED7"
   gray: "#727272"
   black: "#000000"
   white: "#FFFFFF"
   bg: "#F3F5F4"
   border: "#D9E3DF"
+  status-ok: "#3F5C48"
   status-warn: "#B45309"
   status-crit: "#B91C1C"
 typography:
@@ -53,7 +54,7 @@ components:
 
 ## Overview
 
-Operational UI for Mexican property managers. Brand voice is calm forest green on light surfaces, with **Lufga** as the single typeface (Regular / Medium / SemiBold / Bold). Expression lives in precise weight, color, and spacing — not decoration.
+Operational UI for Mexican property managers. Brand voice is **olive forest** `#3F5C48` on stucco-light surfaces, with **Lufga** as the single typeface (Regular / Medium / SemiBold / Bold). Expression lives in precise weight, color, and spacing — not decoration.
 
 Mode: **Operate** (dashboard, CRUD, mobile shell).
 
@@ -61,7 +62,7 @@ Mode: **Operate** (dashboard, CRUD, mobile shell).
 
 | Token | Hex | Role |
 |---|---|---|
-| Brand | `#215A4E` | Primary actions, accents, active states |
+| Brand | `#3F5C48` | Primary actions, accents, active states |
 | Gray | `#727272` | Secondary / muted text |
 | Black | `#000000` | Primary text, high-emphasis labels |
 | White | `#FFFFFF` | Surfaces, inverse text on brand |
@@ -69,11 +70,13 @@ Mode: **Operate** (dashboard, CRUD, mobile shell).
 Supporting (derived for product chrome, not on the board):
 
 - Page background `#F3F5F4`
-- Soft brand wash `#E8F0ED`
+- Soft brand wash `#E8EEE9`
 - Border `#D9E3DF`
+- Workspace mesh: stucco & limestone (`#EDE8E1` / `#E2DDD4` / `#D8D2C8` on `#F6F4F0`), applied edge-to-edge on dashboard `main` (not login; not sheets/dialogs)
+- Status ok / Disponible may share brand green `#3F5C48`
 - Warn / crit keep amber and red for status semantics
 
-Do not reintroduce the previous `#1a7a56` green; `#215A4E` is normative.
+Do not reintroduce retired primaries (`#1a7a56`, `#215A4E`, `#4A4038`, `#3F3A48`); `#3F5C48` is normative.
 
 ## Typography
 
@@ -94,7 +97,7 @@ Operate layouts stay dense and scannable: dashboard chrome, lists, forms. Mobile
 
 ## Elevation & Depth
 
-Soft tinted shadows from brand green (`rgba(33, 90, 78, …)`). Prefer one elevation signal (shadow *or* hairline border), not both stacked.
+Soft tinted shadows from olive forest (`rgba(63, 92, 72, …)`). Prefer one elevation signal (shadow *or* hairline border), not both stacked.
 
 ## Shapes
 
@@ -109,11 +112,12 @@ Primary buttons / filled accents use `{colors.brand}` on white text. Status badg
 **Do**
 
 - Use Lufga at 400/500/600/700 only
-- Drive interactive color from `#215A4E`
+- Drive interactive color from `#3F5C48`
 - Keep Spanish product copy and MXN formatting
+- Keep workspace mesh in stucco / limestone family
 
 **Don't**
 
 - Swap in another display font for “premium”
-- Use purple, cream+brass, or the retired `#1a7a56` as primary
+- Use purple, cream+brass fashion meshes, or lavender/blush/peach as primary atmosphere
 - Add decorative glass / gradient text

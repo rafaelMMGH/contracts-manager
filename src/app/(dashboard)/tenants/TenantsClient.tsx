@@ -54,7 +54,7 @@ function FormField({ label, required, children }: { label: string; required?: bo
   return (
     <div className="space-y-1">
       <label className="block text-[11px] font-medium text-[#64748b] tracking-wide">
-        {label}{required && <span className="text-[#215a4e] ml-0.5">*</span>}
+        {label}{required && <span className="text-[#3f5c48] ml-0.5">*</span>}
       </label>
       {children}
     </div>
@@ -153,7 +153,7 @@ export default function TenantsClient({ tenants }: { tenants: Tenant[] }) {
             style={{ boxShadow: '0 1px 4px rgba(15,23,42,0.04)' }}
           >
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eef2ff]">
-              <Users className="h-5 w-5 text-[#215a4e]" strokeWidth={1.8} />
+              <Users className="h-5 w-5 text-[#3f5c48]" strokeWidth={1.8} />
             </div>
             <p className="mb-1 text-[14px] font-medium text-[#1e293b]">
               Sin inquilinos

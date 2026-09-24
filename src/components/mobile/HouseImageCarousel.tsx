@@ -121,7 +121,11 @@ export default function HouseImageCarousel({
             <button
               key={i}
               type="button"
-              onClick={() => goTo(i)}
+              onClick={(e) => {
+                e.stopPropagation()
+                goTo(i)
+              }}
+              onPointerDown={(e) => e.stopPropagation()}
               className={cn(
                 'pointer-events-auto size-1.5 rounded-full transition-[width,background-color] duration-200',
                 i === index

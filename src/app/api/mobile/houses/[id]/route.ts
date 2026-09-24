@@ -2,6 +2,22 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getMobileUserId, unauthorized, notFound } from '@/lib/mobileAuth'
 import { prisma } from '@/lib/prisma'
 import { HouseStatus, PropertyType } from '@prisma/client'
+import {
+  deleteAllHouseBlobs,
+  normalizeHouseImages,
+  parseLatitude,
+  parseLongitude,
+  syncHouseImages,
+  validateCoords,
+} from '@/lib/houseImages'
+
+const houseInclude = {
+  owner: { select: { id: true, name: true, phone: true } },
+  images: {
+    orderBy: { sortOrder: 'asc' as const },
+    select: { id: true, url: true, pathname: true, sortOrder: true },
+  },
+}
 
 export async function GET(
   request: NextRequest,
@@ -15,9 +31,15 @@ export async function GET(
     where: { id: id, userId },
     include: {
       owner: true,
+      images: {
+        orderBy: { sortOrder: 'asc' },
+        select: { id: true, url: true, pathname: true, sortOrder: true },
+      },
       contracts: {
         where: { status: 'ACTIVE' },
-        include: { tenant: { select: { id: true, fullName: true, phone: true } } },
+        include: {
+          tenant: { select: { id: true, fullName: true, phone: true } },
+        },
         take: 1,
       },
     },
@@ -35,33 +57,54 @@ export async function PUT(
   const userId = getMobileUserId(request)
   if (!userId) return unauthorized()
 
-  const body = await request.json()
+  let body: Record<string, unknown>
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 })
+  }
 
-  const updated = await prisma.house.updateMany({
-    where: { id: id, userId },
-    data: {
-      ownerId: body.ownerId,
-      name: typeof body.name === 'string' ? body.name.trim() || null : null,
-      street: body.street,
-      number: body.number,
-      colony: body.colony,
-      city: body.city,
-      state: body.state,
-      zipCode: body.zipCode,
-      propertyType: body.propertyType as PropertyType,
-      status: body.status as HouseStatus,
-      notes: body.notes || null,
-    },
-  })
+  try {
+    const { latitude, longitude } = validateCoords(
+      parseLatitude(body.latitude),
+      parseLongitude(body.longitude)
+    )
+    const images = normalizeHouseImages(body.images, userId)
 
-  if (updated.count === 0) return notFound('Propiedad no encontrada')
+    const updated = await prisma.house.updateMany({
+      where: { id: id, userId },
+      data: {
+        ownerId: body.ownerId as string,
+        name:
+          typeof body.name === 'string' ? body.name.trim() || null : null,
+        street: body.street as string,
+        number: body.number as string,
+        colony: body.colony as string,
+        city: body.city as string,
+        state: body.state as string,
+        zipCode: body.zipCode as string,
+        latitude,
+        longitude,
+        propertyType: body.propertyType as PropertyType,
+        status: body.status as HouseStatus,
+        notes: (body.notes as string) || null,
+      },
+    })
 
-  const house = await prisma.house.findFirst({
-    where: { id: id, userId },
-    include: { owner: { select: { id: true, name: true, phone: true } } },
-  })
+    if (updated.count === 0) return notFound('Propiedad no encontrada')
 
-  return NextResponse.json(house)
+    await syncHouseImages(id, userId, images)
+
+    const house = await prisma.house.findFirst({
+      where: { id: id, userId },
+      include: houseInclude,
+    })
+
+    return NextResponse.json(house)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Error al actualizar'
+    return NextResponse.json({ error: message }, { status: 400 })
+  }
 }
 
 export async function DELETE(
@@ -72,7 +115,13 @@ export async function DELETE(
   const userId = getMobileUserId(request)
   if (!userId) return unauthorized()
 
-  const deleted = await prisma.house.deleteMany({ where: { id: id, userId } })
-  if (deleted.count === 0) return notFound('Propiedad no encontrada')
+  const house = await prisma.house.findFirst({
+    where: { id: id, userId },
+    select: { id: true },
+  })
+  if (!house) return notFound('Propiedad no encontrada')
+
+  await deleteAllHouseBlobs(id)
+  await prisma.house.deleteMany({ where: { id: id, userId } })
   return NextResponse.json({ ok: true })
 }

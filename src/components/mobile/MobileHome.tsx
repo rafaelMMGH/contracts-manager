@@ -1,11 +1,10 @@
 'use client'
 
-import { useEffect, useMemo, useState, useTransition } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
-  ViewTransition,
   addTransitionType,
   startTransition,
 } from 'react'
@@ -14,7 +13,7 @@ import {
   SlidersHorizontal,
   ArrowUpRight,
   Building2,
-  Map,
+  Map as MapIcon,
   Home,
   Building,
   LayoutGrid,
@@ -58,7 +57,7 @@ const TYPE_FILTERS: {
 
 const CHIPS: { id: ChipId; label: string }[] = [
   { id: 'todos', label: 'Todos' },
-  { id: 'activos', label: 'Activos' },
+  { id: 'activos', label: 'Rentados' },
   { id: 'por_vencer', label: 'Por vencer' },
   { id: 'disponibles', label: 'Disponibles' },
 ]
@@ -80,6 +79,14 @@ function tipDismissedKey(userId: string) {
   return `contratos.mobileHome.tipDismissed:${userId}`
 }
 
+function lightHaptic() {
+  try {
+    navigator.vibrate?.(8)
+  } catch {
+    /* unsupported */
+  }
+}
+
 export default function MobileHome({
   userId,
   userName,
@@ -87,14 +94,14 @@ export default function MobileHome({
   owners,
   kpis,
 }: MobileHomeProps) {
-  const router = useRouter()
   const [chip, setChip] = useState<ChipId>('todos')
   const [typeFilter, setTypeFilter] = useState<TypeFilterId>('todos')
   const [query, setQuery] = useState('')
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [mapOpen, setMapOpen] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)
-  const [isPending, startFormTransition] = useTransition()
+  const [isSavingHouse, setIsSavingHouse] = useState(false)
+  const [canSubmitHouse, setCanSubmitHouse] = useState(false)
   const [tipDismissed, setTipDismissed] = useState(false)
 
   useEffect(() => {
@@ -117,13 +124,21 @@ export default function MobileHome({
   const filtered = useMemo(() => {
     const byFilters = filterMobileHouses(houses, chip, typeFilter)
     const q = query.trim().toLowerCase()
-    if (!q) return byFilters
-    return byFilters.filter(
-      (h) =>
-        h.title.toLowerCase().includes(q) ||
-        h.address.toLowerCase().includes(q) ||
-        h.city.toLowerCase().includes(q)
-    )
+    const next = !q
+      ? byFilters
+      : byFilters.filter(
+          (h) =>
+            h.title.toLowerCase().includes(q) ||
+            h.address.toLowerCase().includes(q) ||
+            h.city.toLowerCase().includes(q)
+        )
+    // Dedupe by id so list keys stay stable across refreshes
+    const seen = new Set<string>()
+    return next.filter((h) => {
+      if (seen.has(h.id)) return false
+      seen.add(h.id)
+      return true
+    })
   }, [houses, chip, typeFilter, query])
 
   function openCreate() {
@@ -144,9 +159,21 @@ export default function MobileHome({
       ? pickFeaturedHouse(houses)
       : (filtered[0] ?? null)
 
+  /** Featured card shown once; excluded from the list below. */
+  const heroHouse =
+    featured && filtered.some((h) => h.id === featured.id)
+      ? featured
+      : (filtered[0] ?? null)
+  const listHouses = heroHouse
+    ? filtered.filter((h) => h.id !== heroHouse.id)
+    : filtered
+
   const showList = chip === 'por_vencer'
   const portfolioEmpty = houses.length === 0
   const hasOwners = owners.length > 0
+  const showMapPill =
+    !portfolioEmpty && filtered.length > 0 && !mapOpen && !sheetOpen
+  const mapPillPadding = !portfolioEmpty && filtered.length > 0
 
   function closeSheet() {
     setSheetOpen(false)
@@ -155,16 +182,18 @@ export default function MobileHome({
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const fd = new FormData(e.currentTarget)
-    startFormTransition(async () => {
+    void (async () => {
+      setIsSavingHouse(true)
       try {
         await createHouse(fd)
         notify.created('Inmueble')
         closeSheet()
-        router.refresh()
       } catch {
         notify.saveError()
+      } finally {
+        setIsSavingHouse(false)
       }
-    })
+    })()
   }
 
   function emptyState() {
@@ -227,8 +256,13 @@ export default function MobileHome({
           </div>
         </div>
       ) : (
-      <div className="flex min-h-0 flex-1 flex-col px-1 pb-4 pt-1">
-        {/* Liquid-glass chrome: search · map · filter */}
+      <div
+        className={cn(
+          'flex min-h-0 flex-1 flex-col px-1 pt-1',
+          mapPillPadding ? 'pb-20' : 'pb-4'
+        )}
+      >
+        {/* Liquid-glass chrome: search · filter */}
         <div className="mb-4 flex items-center gap-2.5">
           <div className="liquid-glass flex h-12 min-w-0 flex-1 items-center gap-2.5 rounded-full px-3.5">
             <Search className="size-4 shrink-0 text-text-secondary" strokeWidth={1.75} />
@@ -240,18 +274,6 @@ export default function MobileHome({
               className="w-full border-0 bg-transparent p-0 text-base text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-0 md:text-[13px]"
             />
           </div>
-          <button
-            type="button"
-            onClick={() => setMapOpen(true)}
-            disabled={filtered.length === 0}
-            className={cn(
-              'liquid-glass flex size-12 shrink-0 items-center justify-center rounded-full text-text-secondary transition-transform active:scale-[0.96]',
-              filtered.length === 0 && 'cursor-not-allowed opacity-45 active:scale-100'
-            )}
-            aria-label="Ver mapa"
-          >
-            <Map className="size-[18px]" strokeWidth={2} />
-          </button>
           <button
             type="button"
             onClick={() => setFiltersOpen((v) => !v)}
@@ -357,32 +379,49 @@ export default function MobileHome({
               </span>
             </div>
 
-            {featured && filtered.some((h) => h.id === featured.id) ? (
-              <PropertyCard house={featured} priority animationDelay={0} />
-            ) : filtered[0] ? (
-              <PropertyCard house={filtered[0]} priority animationDelay={0} />
+            {heroHouse ? (
+              <PropertyCard house={heroHouse} priority animationDelay={0} />
             ) : (
               emptyState()
             )}
 
-            {filtered.length > 1 ? (
+            {listHouses.length > 0 ? (
               <ul className="mt-5 space-y-5">
-                {filtered
-                  .filter((h) => h.id !== (featured?.id ?? filtered[0]?.id))
-                  .map((house, i) => (
-                    <li key={house.id}>
-                      <PropertyCard
-                        house={house}
-                        animationDelay={(i + 1) * 75}
-                      />
-                    </li>
-                  ))}
+                {listHouses.map((house, i) => (
+                  <li key={house.id}>
+                    <PropertyCard
+                      house={house}
+                      animationDelay={(i + 1) * 75}
+                    />
+                  </li>
+                ))}
               </ul>
             ) : null}
           </>
         )}
       </div>
       )}
+
+      {showMapPill ? (
+        <button
+          type="button"
+          onClick={() => {
+            lightHaptic()
+            setMapOpen(true)
+          }}
+          className={cn(
+            'fixed left-1/2 z-30 -translate-x-1/2 md:hidden',
+            'bottom-[calc(5.25rem+env(safe-area-inset-bottom))]',
+            'liquid-glass flex h-11 items-center gap-2 rounded-full px-4',
+            'text-[13px] font-semibold text-text-primary',
+            'transition-transform active:scale-[0.96]'
+          )}
+          aria-label="Ver mapa"
+        >
+          <MapIcon className="size-[18px] text-text-secondary" strokeWidth={2} />
+          Mapa
+        </button>
+      ) : null}
 
       <SlideSheet
         open={sheetOpen}
@@ -394,10 +433,10 @@ export default function MobileHome({
             <button
               type="submit"
               form="mobile-house-form"
-              disabled={isPending}
+              disabled={isSavingHouse || !canSubmitHouse}
               className="btn-primary disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {isPending ? 'Guardando…' : 'Crear inmueble'}
+              {isSavingHouse ? 'Guardando…' : 'Crear inmueble'}
             </button>
           ) : undefined
         }
@@ -408,7 +447,10 @@ export default function MobileHome({
             onSubmit={handleSubmit}
             className="space-y-4"
           >
-            <HouseFormFields owners={owners} />
+            <HouseFormFields
+              owners={owners}
+              onCanSubmitChange={setCanSubmitHouse}
+            />
           </form>
         ) : (
           <div className="flex flex-col items-center px-2 py-10 text-center">
@@ -443,11 +485,10 @@ function PropertyCard({
   house: MobileHouseDto
   priority?: boolean
   animationDelay?: number
+  slot?: 'hero' | 'list'
 }) {
   const router = useRouter()
   const TypeIcon = house.propertyType === 'COMMERCIAL' ? Building2 : Home
-  const imageShareName = `house-${house.id}`
-  const titleShareName = `house-title-${house.id}`
   const statusLabel = glassStatusLabel(house.badgeStatus, house.expiresInDays)
   const tenantInitial = house.contractTenantName
     ? house.contractTenantName.trim().charAt(0).toUpperCase()
@@ -468,11 +509,6 @@ function PropertyCard({
       style={{ ['--card-delay' as string]: `${animationDelay}ms` }}
     >
       <div className="rounded-[2rem] bg-transparent">
-        <ViewTransition
-          name={imageShareName}
-          share="morph"
-          default="none"
-        >
           <button
             type="button"
             onClick={openDetail}
@@ -488,7 +524,6 @@ function PropertyCard({
               priority={priority}
             />
           </button>
-        </ViewTransition>
 
         {/*
           Card body is not a shared morph target — layout/content differ too much
@@ -527,15 +562,9 @@ function PropertyCard({
 
           {/* Title + address */}
           <div className="min-w-0 space-y-1.5">
-            <ViewTransition
-              name={titleShareName}
-              share="text-morph"
-              default="none"
-            >
               <p className="truncate text-[20px] font-semibold leading-snug tracking-tight text-text-primary">
                 {house.title}
               </p>
-            </ViewTransition>
             <p className="line-clamp-2 text-[13px] leading-snug text-text-muted">
               {house.address}
             </p>

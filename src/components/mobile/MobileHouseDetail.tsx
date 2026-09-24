@@ -100,6 +100,7 @@ export default function MobileHouseDetail({
   )
   const [isPending, startDeleteTransition] = useTransition()
   const [isSaving, startSaveTransition] = useTransition()
+  const [canSubmitHouse, setCanSubmitHouse] = useState(true)
   const [isContractPending, startContractTransition] = useTransition()
 
   const stats = [
@@ -271,7 +272,6 @@ export default function MobileHouseDetail({
           expiresInDays={house.expiresInDays}
           fullBleed
           priority
-          shareName={`house-${house.id}`}
         />
 
         <div
@@ -428,7 +428,7 @@ export default function MobileHouseDetail({
           <button
             type="submit"
             form="mobile-house-edit-form"
-            disabled={isSaving}
+            disabled={isSaving || !canSubmitHouse}
             className="btn-primary disabled:cursor-not-allowed disabled:opacity-40"
           >
             {isSaving ? 'Guardando…' : 'Actualizar'}
@@ -445,6 +445,7 @@ export default function MobileHouseDetail({
             defaults={formDefaults}
             showStatus
             hasContract={house.hasContract}
+            onCanSubmitChange={setCanSubmitHouse}
           />
         </form>
       </SlideSheet>

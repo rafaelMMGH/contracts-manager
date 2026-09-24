@@ -15,6 +15,9 @@ export type MobileHouseDto = {
   image: string
   /** Gallery for detail carousel (includes `image` as first slide) */
   images: string[]
+  /** Persisted map pin; null for legacy houses without coords */
+  latitude: number | null
+  longitude: number | null
   description: string
   expiresInDays: number | null
   contractId: string | null

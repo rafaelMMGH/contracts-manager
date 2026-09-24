@@ -247,6 +247,7 @@ function OwnerMobileCard({
         className={cn(
           'relative z-[1] flex gap-3.5 rounded-[28px] p-3.5 origin-center',
           'liquid-glass-tile',
+          offset < 0 && 'liquid-glass-tile--opaque',
           'select-none touch-pan-y [-webkit-user-select:none] [-webkit-touch-callout:none]',
           'outline-none focus-visible:ring-2 focus-visible:ring-brand-500/35'
         )}

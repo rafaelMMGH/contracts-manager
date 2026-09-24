@@ -37,6 +37,9 @@ interface House {
   ownerId: string
   owner: { name: string }
   hasContract: boolean
+  latitude?: number | null
+  longitude?: number | null
+  images?: { url: string; pathname: string; sortOrder: number }[]
 }
 
 const statusConfig: Record<string, { label: string; bg: string; text: string; border: string }> = {
@@ -56,6 +59,7 @@ export default function HousesClient({ houses, owners }: { houses: House[]; owne
   const [editing, setEditing] = useState<House | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [canSubmitHouse, setCanSubmitHouse] = useState(false)
   const deletingHouse = houses.find(h => h.id === deletingId)
 
   function openCreate() { setEditing(null); setSheetOpen(true) }
@@ -184,7 +188,12 @@ export default function HousesClient({ houses, owners }: { houses: House[]; owne
         title={editing ? 'Editar inmueble' : 'Nuevo inmueble'}
         width={480}
         footer={
-          <button type="submit" form="house-form" disabled={isPending} className="btn-primary disabled:opacity-40 disabled:cursor-not-allowed">
+          <button
+            type="submit"
+            form="house-form"
+            disabled={isPending || !canSubmitHouse}
+            className="btn-primary disabled:opacity-40 disabled:cursor-not-allowed"
+          >
             {isPending ? 'Guardando…' : editing ? 'Actualizar' : 'Crear inmueble'}
           </button>
         }
@@ -192,9 +201,20 @@ export default function HousesClient({ houses, owners }: { houses: House[]; owne
         <form key={editing?.id ?? 'new'} id="house-form" onSubmit={handleSubmit} className="space-y-4">
           <HouseFormFields
             owners={owners}
-            defaults={editing ?? undefined}
+            defaults={
+              editing
+                ? {
+                    ...editing,
+                    images: editing.images?.map((img) => ({
+                      url: img.url,
+                      pathname: img.pathname,
+                    })),
+                  }
+                : undefined
+            }
             showStatus={!!editing}
             hasContract={editing?.hasContract ?? false}
+            onCanSubmitChange={setCanSubmitHouse}
           />
         </form>
       </SlideSheet>

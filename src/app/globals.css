@@ -207,17 +207,24 @@
     isolation: isolate;
     background: linear-gradient(
       165deg,
-      rgba(255, 255, 255, 0.55) 0%,
-      rgba(255, 255, 255, 0.28) 100%
+      rgba(255, 255, 255, 0.78) 0%,
+      rgba(255, 255, 255, 0.52) 100%
     );
     backdrop-filter: blur(28px) saturate(1.45);
     -webkit-backdrop-filter: blur(28px) saturate(1.45);
-    border: 1px solid rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.82);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.95),
       inset 0 -0.5px 0 rgba(15, 23, 42, 0.04),
       0 10px 32px rgba(15, 23, 42, 0.06),
       0 2px 8px rgba(0, 0, 0, 0.03);
+  }
+
+  /* Opaque surface while sliding over destructive swipe chrome */
+  .liquid-glass-tile.liquid-glass-tile--opaque {
+    background: #ffffff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   /* Property detail CTA — progressive frosted dissolve (blur on ::before only) */
@@ -415,6 +422,33 @@
 
   .mobile-map-pin:active .mobile-map-pin__dot {
     transform: translateY(-6px) scale(0.92);
+  }
+
+  .mobile-map-pin--selected {
+    filter: drop-shadow(0 6px 14px rgba(63, 92, 72, 0.5));
+    z-index: 2;
+  }
+
+  .mobile-map-pin--selected .mobile-map-pin__dot {
+    width: 24px;
+    height: 24px;
+    border-width: 3.5px;
+    transform: translateY(-8px);
+  }
+
+  .mobile-map-pin--selected:active .mobile-map-pin__dot {
+    transform: translateY(-8px) scale(0.92);
+  }
+
+  @keyframes mapCardIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   body[data-mobile-map-open='true'] [data-floating-tab-bar] {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Owner } from '@prisma/client'
 import Modal from '@/components/Modal'
@@ -17,6 +17,7 @@ interface Props {
 export default function NewHouseModal({ isOpen, onClose, owners }: Props) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const [canSubmitHouse, setCanSubmitHouse] = useState(false)
   const formId = 'new-house-form'
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -48,7 +49,7 @@ export default function NewHouseModal({ isOpen, onClose, owners }: Props) {
           <button
             type="submit"
             form={formId}
-            disabled={isPending}
+            disabled={isPending || !canSubmitHouse}
             className="btn-primary disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {isPending ? (
@@ -65,7 +66,10 @@ export default function NewHouseModal({ isOpen, onClose, owners }: Props) {
       }
     >
       <form id={formId} onSubmit={handleSubmit} className="space-y-4">
-        <HouseFormFields owners={owners} />
+        <HouseFormFields
+          owners={owners}
+          onCanSubmitChange={setCanSubmitHouse}
+        />
       </form>
     </Modal>
   )

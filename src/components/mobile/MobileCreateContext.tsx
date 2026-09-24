@@ -16,14 +16,11 @@ export type MobileCreateIcon = ComponentType<{
   strokeWidth?: number
 }>
 
-export type MobileFabVariant = 'create' | 'map'
-
 export type MobileCreateAction = {
   label: string
   icon: MobileCreateIcon
   open: () => void
   disabled?: boolean
-  variant?: MobileFabVariant
 }
 
 type MobileCreateControls = {
@@ -60,7 +57,6 @@ export function useMobileCreateAction() {
 
 type RegisterOptions = {
   disabled?: boolean
-  variant?: MobileFabVariant
 }
 
 /** Register a FAB action while this page is mounted. */
@@ -74,7 +70,6 @@ export function useRegisterMobileCreate(
   const openRef = useRef(open)
   openRef.current = open
   const disabled = options?.disabled ?? false
-  const variant = options?.variant ?? 'create'
 
   useEffect(() => {
     if (!setAction) return
@@ -83,10 +78,9 @@ export function useRegisterMobileCreate(
       label,
       icon,
       disabled,
-      variant,
       open: () => openRef.current(),
     })
 
     return () => setAction(null)
-  }, [setAction, label, icon, disabled, variant])
+  }, [setAction, label, icon, disabled])
 }

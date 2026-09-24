@@ -1,11 +1,16 @@
 'use client'
 
+import { useCallback, useEffect, useRef, useState } from 'react'
+import HouseImageGallery from './HouseImageGallery'
+import HouseLocationField from './HouseLocationField'
+import type { HouseImageItem } from '@/lib/houseImages'
+
 type OwnerOption = {
   id: string
   name: string
 }
 
-type HouseFormDefaults = {
+export type HouseFormDefaults = {
   ownerId?: string
   name?: string | null
   street?: string
@@ -17,6 +22,9 @@ type HouseFormDefaults = {
   propertyType?: string
   status?: string
   notes?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  images?: HouseImageItem[]
 }
 
 /** 32 estados + CDMX */
@@ -90,6 +98,8 @@ type HouseFormFieldsProps = {
    * When false, user may pick Disponible | Mantenimiento.
    */
   hasContract?: boolean
+  /** False when location is missing or address changed without confirming pin. */
+  onCanSubmitChange?: (canSubmit: boolean) => void
 }
 
 export default function HouseFormFields({
@@ -97,8 +107,77 @@ export default function HouseFormFields({
   defaults = {},
   showStatus = false,
   hasContract = false,
+  onCanSubmitChange,
 }: HouseFormFieldsProps) {
   const defaultState = defaults.state ?? 'Chiapas'
+
+  const baselineAddress = useRef({
+    street: defaults.street ?? '',
+    number: defaults.number ?? '',
+    colony: defaults.colony ?? '',
+  })
+
+  const [street, setStreet] = useState(defaults.street ?? '')
+  const [number, setNumber] = useState(defaults.number ?? '')
+  const [colony, setColony] = useState(defaults.colony ?? '')
+  const [city, setCity] = useState(defaults.city ?? 'Tuxtla Gutiérrez')
+  const [state, setState] = useState(
+    (MEXICAN_STATES as readonly string[]).includes(defaultState)
+      ? defaultState
+      : 'Chiapas'
+  )
+
+  const [locationStale, setLocationStale] = useState(false)
+  const [hasCoords, setHasCoords] = useState(
+    () =>
+      defaults.latitude != null &&
+      defaults.longitude != null &&
+      Number.isFinite(defaults.latitude) &&
+      Number.isFinite(defaults.longitude)
+  )
+
+  const onCoordsChange = useCallback(
+    (coords: { lat: number; lng: number } | null) => {
+      setHasCoords(coords != null)
+    },
+    []
+  )
+
+  const getAddressQuery = useCallback(() => {
+    const parts = [street, number, colony, city, state, 'México']
+      .map((p) => p.trim())
+      .filter(Boolean)
+    return parts.join(', ')
+  }, [street, number, colony, city, state])
+
+  function markAddressDirty(
+    next: Partial<{ street: string; number: string; colony: string }>
+  ) {
+    const merged = {
+      street: next.street ?? street,
+      number: next.number ?? number,
+      colony: next.colony ?? colony,
+    }
+    const base = baselineAddress.current
+    const changed =
+      merged.street !== base.street ||
+      merged.number !== base.number ||
+      merged.colony !== base.colony
+    if (changed && hasCoords) {
+      setLocationStale(true)
+    }
+  }
+
+  function handleLocationStaleChange(stale: boolean) {
+    setLocationStale(stale)
+    if (!stale) {
+      baselineAddress.current = { street, number, colony }
+    }
+  }
+
+  useEffect(() => {
+    onCanSubmitChange?.(hasCoords && !locationStale)
+  }, [hasCoords, locationStale, onCanSubmitChange])
 
   return (
     <>
@@ -132,82 +211,106 @@ export default function HouseFormFields({
       </FormField>
 
       <div className="space-y-4 border-t border-black/[0.06] pt-4">
-      <FormField label="Calle" required>
-        <input
-          name="street"
-          type="text"
-          required
-          defaultValue={defaults.street}
-          className={f}
-          placeholder="Av. Central"
+        <HouseImageGallery initialImages={defaults.images ?? []} />
+
+        <FormField label="Calle" required>
+          <input
+            name="street"
+            type="text"
+            required
+            value={street}
+            onChange={(e) => {
+              const v = e.target.value
+              setStreet(v)
+              markAddressDirty({ street: v })
+            }}
+            className={f}
+            placeholder="Av. Central"
+          />
+        </FormField>
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField label="Número" required>
+            <input
+              name="number"
+              type="text"
+              required
+              value={number}
+              onChange={(e) => {
+                const v = e.target.value
+                setNumber(v)
+                markAddressDirty({ number: v })
+              }}
+              className={f}
+              placeholder="123"
+            />
+          </FormField>
+          <FormField label="Colonia" required>
+            <input
+              name="colony"
+              type="text"
+              required
+              value={colony}
+              onChange={(e) => {
+                const v = e.target.value
+                setColony(v)
+                markAddressDirty({ colony: v })
+              }}
+              className={f}
+              placeholder="Centro"
+            />
+          </FormField>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField label="Ciudad" required>
+            <input
+              name="city"
+              type="text"
+              required
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              className={f}
+            />
+          </FormField>
+          <FormField label="Estado" required>
+            <select
+              name="state"
+              required
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+              className={f}
+            >
+              {MEXICAN_STATES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </FormField>
+        </div>
+
+        <HouseLocationField
+          initialLatitude={defaults.latitude}
+          initialLongitude={defaults.longitude}
+          locationStale={locationStale}
+          onLocationStaleChange={handleLocationStaleChange}
+          onCoordsChange={onCoordsChange}
+          getAddressQuery={getAddressQuery}
         />
-      </FormField>
-
-      <div className="grid grid-cols-2 gap-4">
-        <FormField label="Número" required>
-          <input
-            name="number"
-            type="text"
-            required
-            defaultValue={defaults.number}
-            className={f}
-            placeholder="123"
-          />
-        </FormField>
-        <FormField label="Colonia" required>
-          <input
-            name="colony"
-            type="text"
-            required
-            defaultValue={defaults.colony}
-            className={f}
-            placeholder="Centro"
-          />
-        </FormField>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <FormField label="Ciudad" required>
+        <FormField label="Código postal" required>
           <input
-            name="city"
+            name="zipCode"
             type="text"
             required
-            defaultValue={defaults.city ?? 'Tuxtla Gutiérrez'}
+            defaultValue={defaults.zipCode}
             className={f}
+            placeholder="29000"
           />
         </FormField>
-        <FormField label="Estado" required>
-          <select
-            name="state"
-            required
-            defaultValue={
-              (MEXICAN_STATES as readonly string[]).includes(defaultState)
-                ? defaultState
-                : 'Chiapas'
-            }
-            className={f}
-          >
-            {MEXICAN_STATES.map((state) => (
-              <option key={state} value={state}>
-                {state}
-              </option>
-            ))}
-          </select>
-        </FormField>
-      </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-      <FormField label="Código postal" required>
-        <input
-          name="zipCode"
-          type="text"
-          required
-          defaultValue={defaults.zipCode}
-          className={f}
-          placeholder="29000"
-        />
-      </FormField>
       </div>
 
       <div className="mt-2 space-y-4 border-t border-black/[0.06] pt-4">

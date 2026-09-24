@@ -5,6 +5,12 @@ import { prisma } from '@/lib/prisma'
 import { canDeleteHouse } from '@/lib/canDeleteHouse'
 import { attachedContractWhere, findAttachedContract } from '@/lib/houseContract'
 import { requireUserId } from '@/lib/requireUserId'
+import {
+  deleteAllHouseBlobs,
+  parseCoordsFromFormData,
+  parseImagesFromFormData,
+  syncHouseImages,
+} from '@/lib/houseImages'
 import { PropertyType, HouseStatus } from '@prisma/client'
 
 function revalidateHousePaths(id?: string) {
@@ -37,8 +43,10 @@ export async function createHouse(formData: FormData) {
   const userId = await requireUserId()
   const name = requiredHouseName(formData)
   const status = await resolveHouseStatus(null, formData)
+  const { latitude, longitude } = parseCoordsFromFormData(formData)
+  const images = parseImagesFromFormData(formData, userId)
 
-  await prisma.house.create({
+  const house = await prisma.house.create({
     data: {
       userId,
       ownerId: formData.get('ownerId') as string,
@@ -49,11 +57,17 @@ export async function createHouse(formData: FormData) {
       city: formData.get('city') as string,
       state: formData.get('state') as string,
       zipCode: formData.get('zipCode') as string,
+      latitude,
+      longitude,
       propertyType: formData.get('propertyType') as PropertyType,
       status,
       notes: (formData.get('notes') as string) || null,
     },
   })
+
+  if (images.length > 0) {
+    await syncHouseImages(house.id, userId, images)
+  }
 
   revalidateHousePaths()
 }
@@ -62,8 +76,10 @@ export async function updateHouse(id: string, formData: FormData) {
   const userId = await requireUserId()
   const name = requiredHouseName(formData)
   const status = await resolveHouseStatus(id, formData)
+  const { latitude, longitude } = parseCoordsFromFormData(formData)
+  const images = parseImagesFromFormData(formData, userId)
 
-  await prisma.house.updateMany({
+  const updated = await prisma.house.updateMany({
     where: { id, userId },
     data: {
       ownerId: formData.get('ownerId') as string,
@@ -74,12 +90,17 @@ export async function updateHouse(id: string, formData: FormData) {
       city: formData.get('city') as string,
       state: formData.get('state') as string,
       zipCode: formData.get('zipCode') as string,
+      latitude,
+      longitude,
       propertyType: formData.get('propertyType') as PropertyType,
       status,
       notes: (formData.get('notes') as string) || null,
     },
   })
 
+  if (updated.count === 0) throw new Error('Inmueble no encontrado')
+
+  await syncHouseImages(id, userId, images)
   revalidateHousePaths(id)
 }
 
@@ -112,6 +133,7 @@ export async function deleteHouse(id: string): Promise<DeleteHouseResult> {
     return { ok: false, code: 'HAS_CONTRACTS' }
   }
 
+  await deleteAllHouseBlobs(id)
   await prisma.house.deleteMany({ where: { id, userId } })
   revalidateHousePaths(id)
   return { ok: true }

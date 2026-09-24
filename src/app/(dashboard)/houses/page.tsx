@@ -13,6 +13,10 @@ export default async function HousesPage() {
       orderBy: { createdAt: 'desc' },
       include: {
         owner: { select: { name: true } },
+        images: {
+          orderBy: { sortOrder: 'asc' },
+          select: { url: true, pathname: true, sortOrder: true },
+        },
         contracts: {
           where: attachedContractWhere,
           select: { id: true },

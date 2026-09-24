@@ -15,6 +15,7 @@ import {
   syncHouseStatusFromContracts,
   toLocalDateStr,
 } from '@/lib/houseContract'
+import type { HouseImageItem } from '@/lib/houseImages'
 
 function daysUntil(date: Date, now: Date): number {
   const ms = date.getTime() - now.getTime()
@@ -58,6 +59,12 @@ type AttachedContract = {
   tenant: { fullName: string }
 }
 
+type HouseImageRow = {
+  url: string
+  pathname: string
+  sortOrder: number
+}
+
 type HouseWithContract = {
   id: string
   ownerId: string
@@ -68,10 +75,13 @@ type HouseWithContract = {
   city: string
   state: string
   zipCode: string
+  latitude: number | null
+  longitude: number | null
   propertyType: 'RESIDENTIAL' | 'COMMERCIAL'
   status: 'AVAILABLE' | 'RENTED' | 'MAINTENANCE'
   notes: string | null
   contracts: AttachedContract[]
+  images: HouseImageRow[]
 }
 
 /** Fields needed to prefill HouseFormFields on edit. */
@@ -87,6 +97,9 @@ export type MobileHouseFormDefaults = {
   propertyType: string
   status: string
   notes: string
+  latitude: number | null
+  longitude: number | null
+  images: HouseImageItem[]
 }
 
 export type MobileHouseDetailData = {
@@ -109,6 +122,12 @@ function toFormDefaults(house: HouseWithContract): MobileHouseFormDefaults {
     propertyType: house.propertyType,
     status: house.status,
     notes: house.notes ?? '',
+    latitude: house.latitude,
+    longitude: house.longitude,
+    images: house.images.map((img) => ({
+      url: img.url,
+      pathname: img.pathname,
+    })),
   }
 }
 
@@ -146,7 +165,11 @@ export function toMobileHouseDto(
   const expiresInDays =
     isPorVencer && contract ? daysUntil(contract.expirationDate, now) : null
 
-  const images = placeholdersFor(house.id, 4)
+  const realImages = [...house.images]
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((img) => img.url)
+  const images =
+    realImages.length > 0 ? realImages : placeholdersFor(house.id, 4)
 
   return {
     id: house.id,
@@ -160,6 +183,8 @@ export function toMobileHouseDto(
     rentMxn,
     image: images[0] ?? placeholderFor(house.id),
     images,
+    latitude: house.latitude,
+    longitude: house.longitude,
     description: defaultDescription(house.propertyType, house.city, house.notes),
     expiresInDays,
     contractId: contract?.id ?? null,
@@ -173,6 +198,10 @@ export function toMobileHouseDto(
 }
 
 const houseInclude = {
+  images: {
+    orderBy: { sortOrder: 'asc' as const },
+    select: { url: true, pathname: true, sortOrder: true },
+  },
   contracts: {
     where: attachedContractWhere,
     orderBy: attachedContractOrderBy,
